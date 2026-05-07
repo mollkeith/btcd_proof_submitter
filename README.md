@@ -9,6 +9,7 @@
 - 质押证明：`submitToLenderTransferProof`
 - 解锁证明：`submitRegularUnlockTransferProof`
 - 延期证明：`submitRenewalOrderProof`
+- 延期补仓证明：`submitRenewalOrderProof`
 
 页面会自动：
 
@@ -106,11 +107,12 @@ npm run preview
    - 质押证明
    - 解锁证明
    - 延期证明
+   - 延期补仓证明
 4. 点击右上角 `Connect`
 5. 选择一个可用的 EVM 钱包
 6. 输入：
    - `Order ID / 订单合约地址`
-   - `BTC 交易哈希`（延期证明时可为空）
+   - `BTC 交易哈希`（质押证明、解锁证明、延期补仓证明时需要）
 7. 点击“生成 proof 并提交”
 8. 等待交易打包完成
 
@@ -120,7 +122,8 @@ npm run preview
 - 质押证明提交时，`toLenderTxIndex` 固定传 `0`
 - 解锁证明调用 `Issuer` 合约
 - 延期证明调用订单合约
-- 延期证明未填写 `BTC 交易哈希` 时，会直接提交空 proof
+- 延期证明不显示 `BTC 交易哈希` 输入框，会直接提交空 proof
+- 延期补仓证明调用订单合约，并使用 BTC 哈希生成 proof
 - 交易 gas fee 由当前连接的钱包支付
 
 ## 常见问题

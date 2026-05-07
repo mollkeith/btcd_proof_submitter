@@ -792,6 +792,7 @@
                       <option value="pledge">提交质押证明</option>
                       <option value="unlock">提交解锁证明</option>
                       <option value="renewal">提交延期证明</option>
+                      <option value="renewal-topup">提交延期补仓证明</option>
                     </select>
                   </div>
                 </div>
@@ -810,7 +811,7 @@
                   />
                 </div>
 
-                <div class="field-row">
+                <div class="field-row" id="btc-txid-row">
                   <div class="field">
                     <label for="btc-txid">BTC 交易哈希</label>
                     <input
@@ -977,6 +978,7 @@
         network: document.getElementById("network"),
         proofType: document.getElementById("proof-type"),
         orderAddress: document.getElementById("order-address"),
+        btcTxidRow: document.getElementById("btc-txid-row"),
         btcTxid: document.getElementById("btc-txid"),
         formFooterNote: document.getElementById("form-footer-note"),
         walletConnectButton: document.getElementById("wallet-connect-button"),
@@ -1157,11 +1159,17 @@
       function updateProofTypeHint() {
         const proofType = getSelectedProofType();
         if (proofType === "pledge") {
+          elements.btcTxidRow.hidden = false;
           elements.formFooterNote.innerHTML = "BTC 确认数需至少 <strong>3</strong>。";
         } else if (proofType === "unlock") {
+          elements.btcTxidRow.hidden = false;
           elements.formFooterNote.innerHTML = "BTC 确认数需至少 <strong>3</strong>。";
+        } else if (proofType === "renewal") {
+          elements.btcTxidRow.hidden = true;
+          elements.formFooterNote.innerHTML = "延期证明会直接提交空 proof。";
         } else {
-          elements.formFooterNote.innerHTML = "延期证明的 BTC 哈希可为空；若填写，确认数需至少 <strong>3</strong>。";
+          elements.btcTxidRow.hidden = false;
+          elements.formFooterNote.innerHTML = "延期补仓证明需要填写 BTC 哈希，确认数需至少 <strong>3</strong>。";
         }
       }
 
@@ -1344,16 +1352,19 @@
         }
 
         if (proofType === "renewal") {
-          if (btcTxid !== "" && !/^[0-9a-f]{64}$/.test(btcTxid)) {
-            throw new Error("请输入正确的 BTC 交易哈希，或留空。");
-          }
-        } else if (!/^[0-9a-f]{64}$/.test(btcTxid)) {
+          return {
+            orderAddress,
+            btcTxid: null,
+          };
+        }
+
+        if (!/^[0-9a-f]{64}$/.test(btcTxid)) {
           throw new Error("请输入正确的 BTC 交易哈希。");
         }
 
         return {
           orderAddress,
-          btcTxid: btcTxid === "" ? null : btcTxid,
+          btcTxid,
         };
       }
 
@@ -1522,7 +1533,7 @@
           setWalletButton();
 
           let proof;
-          if (proofType === "renewal" && !btcTxid) {
+          if (proofType === "renewal") {
             setStatus("未提供 BTC 哈希，正在直接提交延期证明...", "warning");
             proof = buildEmptyRenewalProof();
           } else {
@@ -1585,7 +1596,7 @@
               proof.merkleProof
             );
           } else {
-            setStatus("正在提交延期证明...", "warning");
+            setStatus(proofType === "renewal" ? "正在提交延期证明..." : "正在提交延期补仓证明...", "warning");
             const orderContract = new ethers.Contract(orderAddress, ORDER_ABI, state.signer);
             txResponse = await orderContract.submitRenewalOrderProof(
               proof.txRawData,
@@ -1617,7 +1628,7 @@
               </div>
               <div class="result-item">
                 <div class="key">类型</div>
-                <div>${proofType === "pledge" ? "质押证明" : proofType === "unlock" ? "解锁证明" : "延期证明"}</div>
+                <div>${proofType === "pledge" ? "质押证明" : proofType === "unlock" ? "解锁证明" : proofType === "renewal" ? "延期证明" : "延期补仓证明"}</div>
               </div>
               <div class="result-item">
                 <div class="key">EVM Tx</div>
