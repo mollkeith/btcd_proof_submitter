@@ -123,6 +123,8 @@
         display: flex;
         align-items: center;
         gap: 12px;
+        min-width: 0;
+        flex: 1 1 auto;
       }
 
       .brand-mark {
@@ -141,16 +143,19 @@
       .brand-copy {
         display: grid;
         gap: 3px;
+        min-width: 0;
       }
 
       .brand-title {
         font-size: 15px;
         font-weight: 700;
+        overflow-wrap: anywhere;
       }
 
       .brand-subtitle {
         color: var(--muted);
         font-size: 12px;
+        overflow-wrap: anywhere;
       }
 
       .topbar-note {
@@ -169,10 +174,13 @@
         display: flex;
         align-items: center;
         gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
       }
 
       .wallet-connect-btn {
         min-width: 116px;
+        min-height: 44px;
         padding: 10px 16px;
         border-radius: 999px;
         background: linear-gradient(135deg, var(--primary), #2967e8);
@@ -433,6 +441,19 @@
         transform: translateY(-1px);
       }
 
+      select {
+        appearance: none;
+        background-image:
+          linear-gradient(45deg, transparent 50%, #8ea7cc 50%),
+          linear-gradient(135deg, #8ea7cc 50%, transparent 50%);
+        background-position:
+          calc(100% - 22px) calc(50% - 1px),
+          calc(100% - 16px) calc(50% - 1px);
+        background-size: 6px 6px, 6px 6px;
+        background-repeat: no-repeat;
+        padding-right: 40px;
+      }
+
       textarea {
         min-height: 120px;
         resize: vertical;
@@ -605,6 +626,7 @@
       .result-box {
         max-height: 260px;
         overflow: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       .compact-card {
@@ -632,6 +654,8 @@
 
       .wallet-modal-card {
         width: min(460px, 100%);
+        max-height: min(80vh, 640px);
+        overflow: auto;
         padding: 22px;
         border-radius: 24px;
         background: var(--panel-strong);
@@ -692,6 +716,11 @@
           grid-template-columns: 1fr;
         }
 
+        .sidebar-stack {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 16px;
+        }
+
         .pill-grid.compact {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
@@ -704,6 +733,7 @@
         }
 
         .topbar-actions {
+          width: 100%;
           justify-content: space-between;
         }
 
@@ -730,8 +760,47 @@
           padding: 18px;
         }
 
+        .brand {
+          align-items: flex-start;
+        }
+
+        .brand-mark {
+          width: 38px;
+          height: 38px;
+          border-radius: 12px;
+          flex: 0 0 auto;
+        }
+
+        .brand-title {
+          font-size: 14px;
+        }
+
+        .brand-subtitle {
+          display: none;
+        }
+
+        .topbar-note {
+          display: none;
+        }
+
+        .topbar-actions {
+          gap: 8px;
+        }
+
+        .wallet-connect-btn {
+          width: 100%;
+          min-width: 0;
+        }
+
         .field-row {
           grid-template-columns: 1fr;
+        }
+
+        input,
+        select,
+        textarea,
+        button {
+          font-size: 16px;
         }
 
         .pill-grid.compact {
@@ -744,6 +813,45 @@
 
         .actions button {
           width: 100%;
+        }
+
+        .sidebar-stack {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar-card-status {
+          order: 1;
+        }
+
+        .sidebar-card-result {
+          order: 2;
+        }
+
+        .sidebar-card-network {
+          order: 3;
+        }
+
+        .sidebar-card-wallet {
+          order: 4;
+        }
+
+        .wallet-modal {
+          align-items: end;
+          padding: 10px;
+        }
+
+        .wallet-modal-card {
+          width: 100%;
+          padding: 18px;
+          border-radius: 20px;
+        }
+
+        .wallet-modal-head {
+          align-items: flex-start;
+        }
+
+        .wallet-item {
+          padding: 14px;
         }
       }
     </style>
@@ -839,7 +947,7 @@
         </section>
 
         <aside class="stack sidebar-stack">
-          <section class="card compact-card">
+          <section class="card compact-card sidebar-card-network">
             <div class="section-head">
               <div>
                 <h2>当前网络</h2>
@@ -865,7 +973,7 @@
             </div>
           </section>
 
-          <section class="card compact-card">
+          <section class="card compact-card sidebar-card-wallet">
             <div class="section-head">
               <div>
                 <h2>钱包状态</h2>
@@ -876,7 +984,7 @@
             </div>
           </section>
 
-          <section class="card">
+          <section class="card sidebar-card-status">
             <div class="section-head">
               <div>
                 <h2>执行状态</h2>
@@ -887,7 +995,7 @@
             </div>
           </section>
 
-          <section class="card">
+          <section class="card sidebar-card-result">
             <div class="section-head">
               <div>
                 <h2>本次结果</h2>
