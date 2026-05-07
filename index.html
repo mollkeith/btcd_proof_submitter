@@ -1,0 +1,1760 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Proof Submitter</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #07111f;
+        --bg-secondary: #0b1629;
+        --panel: rgba(9, 18, 33, 0.86);
+        --panel-strong: rgba(10, 20, 38, 0.96);
+        --panel-soft: rgba(15, 23, 42, 0.6);
+        --panel-border: rgba(148, 163, 184, 0.14);
+        --line: rgba(148, 163, 184, 0.1);
+        --text: #e5eefb;
+        --muted: #9db0cd;
+        --subtle: #c7d4ea;
+        --primary: #4f8cff;
+        --primary-hover: #3777f6;
+        --primary-soft: rgba(79, 140, 255, 0.14);
+        --success: #22c55e;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --input: rgba(7, 14, 27, 0.92);
+        --shadow: 0 28px 80px rgba(2, 8, 23, 0.42);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(79, 140, 255, 0.22), transparent 28%),
+          radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 24%),
+          linear-gradient(180deg, #09111f 0%, #07111f 38%, #091523 100%);
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        background-size: 48px 48px;
+        mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.4), transparent 75%);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      a {
+        color: #9bc4ff;
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 36px));
+        margin: 24px auto 40px;
+      }
+
+      .topbar,
+      .hero,
+      .card,
+      .info-strip {
+        position: relative;
+        overflow: hidden;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+
+      .topbar,
+      .hero,
+      .card {
+        border-radius: 24px;
+      }
+
+      .topbar::after,
+      .hero::after,
+      .card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.06),
+          transparent 28%,
+          transparent 72%,
+          rgba(79, 140, 255, 0.08)
+        );
+      }
+
+      .topbar {
+        padding: 14px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        color: white;
+        background: linear-gradient(135deg, #3b82f6, #22c55e);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      }
+
+      .brand-copy {
+        display: grid;
+        gap: 3px;
+      }
+
+      .brand-title {
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .brand-subtitle {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .topbar-note {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.08);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        color: var(--subtle);
+        font-size: 13px;
+      }
+
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .wallet-connect-btn {
+        min-width: 116px;
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--primary), #2967e8);
+        color: #fff;
+        font-weight: 700;
+        box-shadow: 0 10px 24px rgba(59, 130, 246, 0.24);
+      }
+
+      .wallet-connect-btn.connected {
+        background: rgba(34, 197, 94, 0.14);
+        color: #c8f7d8;
+        border: 1px solid rgba(34, 197, 94, 0.25);
+        box-shadow: none;
+      }
+
+      .hero {
+        padding: 34px;
+        margin-bottom: 18px;
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+        gap: 28px;
+        align-items: start;
+      }
+
+      h1 {
+        font-size: clamp(34px, 5vw, 52px);
+        line-height: 1.04;
+        letter-spacing: -0.03em;
+      }
+
+      .hero-copy p {
+        margin-top: 16px;
+        max-width: 760px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.75;
+      }
+
+      .hero-meta {
+        display: grid;
+        gap: 12px;
+      }
+
+      .hero-stat {
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(7, 14, 27, 0.5);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+      }
+
+      .hero-stat .label {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .hero-stat .value {
+        margin-top: 8px;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .info-strip {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        backdrop-filter: none;
+      }
+
+      .info-item {
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(9, 18, 33, 0.72);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        box-shadow: 0 12px 40px rgba(2, 8, 23, 0.22);
+      }
+
+      .info-item strong {
+        display: block;
+        font-size: 13px;
+        color: var(--subtle);
+        margin-bottom: 8px;
+      }
+
+      .info-item span {
+        color: var(--muted);
+        line-height: 1.6;
+        font-size: 13px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.18fr) minmax(330px, 0.82fr);
+        gap: 20px;
+        align-items: start;
+      }
+
+      .card {
+        padding: 24px;
+      }
+
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .section-head h2 {
+        font-size: 24px;
+        line-height: 1.15;
+      }
+
+      .section-head p {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.7;
+        margin-top: 8px;
+      }
+
+      .section-tag {
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(34, 197, 94, 0.12);
+        border: 1px solid rgba(34, 197, 94, 0.18);
+        color: #bdf5cf;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .sidebar-stack {
+        gap: 12px;
+      }
+
+      .form-sections {
+        display: grid;
+        gap: 18px;
+      }
+
+      .subcard {
+        position: relative;
+        padding: 18px;
+        border-radius: 20px;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        background: rgba(8, 15, 28, 0.52);
+      }
+
+      .subcard-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--subtle);
+        margin-bottom: 6px;
+      }
+
+      .subcard-desc {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+        margin-bottom: 16px;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .field-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .input-with-suffix {
+        position: relative;
+      }
+
+      .input-with-suffix input {
+        padding-right: 72px;
+      }
+
+      .input-suffix {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        transform: translateY(-50%);
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.1);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        pointer-events: none;
+      }
+
+      label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #d7e3f7;
+      }
+
+      .hint {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      input,
+      select,
+      textarea,
+      button {
+        font: inherit;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 16px;
+        background: linear-gradient(180deg, rgba(9, 17, 31, 0.96), rgba(6, 12, 24, 0.96));
+        color: var(--text);
+        padding: 14px 16px;
+        outline: none;
+        transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease,
+          transform 0.2s ease;
+      }
+
+      input::placeholder,
+      textarea::placeholder {
+        color: #7083a1;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: rgba(79, 140, 255, 0.8);
+        box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.12);
+        transform: translateY(-1px);
+      }
+
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      button {
+        border: 0;
+        border-radius: 16px;
+        padding: 14px 18px;
+        cursor: pointer;
+        transition:
+          transform 0.15s ease,
+          opacity 0.15s ease,
+          background 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+
+      button:hover:not(:disabled) {
+        transform: translateY(-1px);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary), #2967e8);
+        color: white;
+        font-weight: 700;
+        box-shadow: 0 14px 30px rgba(59, 130, 246, 0.24);
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--primary-hover), #225ede);
+      }
+
+      .btn-secondary {
+        background: rgba(148, 163, 184, 0.08);
+        color: var(--text);
+        border: 1px solid rgba(148, 163, 184, 0.16);
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .pill-grid {
+        display: grid;
+        gap: 12px;
+      }
+
+      .pill-grid.compact {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .pill {
+        padding: 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        background: rgba(7, 14, 27, 0.5);
+      }
+
+      .pill .title {
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .pill .value {
+        margin-top: 8px;
+        font-size: 15px;
+        line-height: 1.55;
+        word-break: break-all;
+      }
+
+      .pill.compact {
+        padding: 12px 14px;
+        border-radius: 14px;
+      }
+
+      .pill.compact .title {
+        font-size: 11px;
+      }
+
+      .pill.compact .value {
+        margin-top: 6px;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .status-box,
+      .result-box {
+        padding: 16px 18px;
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        background: rgba(7, 14, 27, 0.56);
+        line-height: 1.7;
+      }
+
+      .status-box.compact {
+        padding: 12px 14px;
+        border-radius: 14px;
+        line-height: 1.45;
+        font-size: 13px;
+      }
+
+      .status-box.success {
+        border-color: rgba(34, 197, 94, 0.32);
+        background: rgba(34, 197, 94, 0.11);
+      }
+
+      .status-box.warning {
+        border-color: rgba(245, 158, 11, 0.3);
+        background: rgba(245, 158, 11, 0.11);
+      }
+
+      .status-box.error {
+        border-color: rgba(239, 68, 68, 0.3);
+        background: rgba(239, 68, 68, 0.11);
+      }
+
+      .mono {
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        word-break: break-all;
+      }
+
+      .result-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .result-item {
+        display: grid;
+        gap: 4px;
+      }
+
+      .result-item .key {
+        color: var(--muted);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+      }
+
+      .small {
+        font-size: 12px;
+      }
+
+      .footer-note {
+        margin-top: 2px;
+        padding: 16px 18px;
+        border-radius: 18px;
+        border: 1px dashed rgba(148, 163, 184, 0.18);
+        background: rgba(255, 255, 255, 0.02);
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      .result-box {
+        max-height: 260px;
+        overflow: auto;
+      }
+
+      .compact-card {
+        padding: 18px;
+      }
+
+      .compact-card .section-head {
+        margin-bottom: 12px;
+      }
+
+      .compact-card .section-head h2 {
+        font-size: 18px;
+      }
+
+      .wallet-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        background: rgba(2, 8, 23, 0.62);
+        backdrop-filter: blur(8px);
+      }
+
+      .wallet-modal-card {
+        width: min(460px, 100%);
+        padding: 22px;
+        border-radius: 24px;
+        background: var(--panel-strong);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        box-shadow: var(--shadow);
+      }
+
+      .wallet-modal-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .wallet-modal-title {
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .wallet-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .wallet-item {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        background: rgba(7, 14, 27, 0.72);
+        color: var(--text);
+        text-align: left;
+      }
+
+      .wallet-item-main {
+        display: grid;
+        gap: 4px;
+      }
+
+      .wallet-item-name {
+        font-weight: 700;
+      }
+
+      .wallet-item-sub {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      @media (max-width: 980px) {
+        .hero-grid,
+        .grid,
+        .info-strip {
+          grid-template-columns: 1fr;
+        }
+
+        .pill-grid.compact {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 760px) {
+        .topbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .topbar-actions {
+          justify-content: space-between;
+        }
+
+        .section-head {
+          flex-direction: column;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .page {
+          width: min(100%, calc(100% - 18px));
+          margin: 12px auto 24px;
+        }
+
+        .topbar,
+        .hero,
+        .card {
+          border-radius: 20px;
+        }
+
+        .topbar,
+        .hero,
+        .card {
+          padding: 18px;
+        }
+
+        .field-row {
+          grid-template-columns: 1fr;
+        }
+
+        .pill-grid.compact {
+          grid-template-columns: 1fr;
+        }
+
+        .actions {
+          flex-direction: column;
+        }
+
+        .actions button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <section class="topbar">
+        <div class="brand">
+          <div class="brand-mark">BT</div>
+          <div class="brand-copy">
+            <div class="brand-title">BTC Proof Submitter</div>
+            <div class="brand-subtitle">Static utility for pledge and unlock proof submission</div>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <div class="topbar-note">EVM Wallet</div>
+          <button type="button" id="wallet-connect-button" class="wallet-connect-btn">Connect</button>
+        </div>
+      </section>
+
+      <div class="grid">
+        <section class="card">
+          <div class="section-head">
+            <div>
+              <h2>提交证明</h2>
+            </div>
+            <div class="section-tag">Live</div>
+          </div>
+
+          <form id="submit-form" class="stack">
+            <div class="form-sections">
+              <div class="subcard">
+                <div class="subcard-title">环境配置</div>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="network">网络</label>
+                    <select id="network" name="network">
+                      <option value="staging">staging</option>
+                      <option value="pg">pg</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="proof-type">证明类型</label>
+                    <select id="proof-type" name="proof-type">
+                      <option value="pledge">提交质押证明</option>
+                      <option value="unlock">提交解锁证明</option>
+                      <option value="renewal">提交延期证明</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subcard">
+                <div class="subcard-title">业务参数</div>
+                <div class="field">
+                  <label for="order-address">Order ID / 订单合约地址</label>
+                  <input
+                    id="order-address"
+                    name="order-address"
+                    type="text"
+                    placeholder="0x..."
+                    autocomplete="off"
+                  />
+                </div>
+
+                <div class="field-row">
+                  <div class="field">
+                    <label for="btc-txid">BTC 交易哈希</label>
+                    <input
+                      id="btc-txid"
+                      name="btc-txid"
+                      type="text"
+                      placeholder="例如：b0239a30d8344387..."
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="submit" id="submit-proof" class="btn-primary">
+                生成 proof 并提交
+              </button>
+            </div>
+          </form>
+
+          <div class="footer-note" id="form-footer-note">
+            BTC 确认数需至少 <strong>3</strong>。
+          </div>
+        </section>
+
+        <aside class="stack sidebar-stack">
+          <section class="card compact-card">
+            <div class="section-head">
+              <div>
+                <h2>当前网络</h2>
+              </div>
+            </div>
+            <div class="pill-grid compact">
+              <div class="pill compact">
+                <div class="title">RPC</div>
+                <div id="network-rpc" class="value mono"></div>
+              </div>
+              <div class="pill compact">
+                <div class="title">Chain ID</div>
+                <div id="network-chain-id" class="value mono"></div>
+              </div>
+              <div class="pill compact">
+                <div class="title">Issuer 合约</div>
+                <div id="network-issuer" class="value mono"></div>
+              </div>
+              <div class="pill compact">
+                <div class="title">浏览器</div>
+                <div id="network-explorer" class="value"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card compact-card">
+            <div class="section-head">
+              <div>
+                <h2>钱包状态</h2>
+              </div>
+            </div>
+            <div id="wallet-status" class="status-box compact warning">
+              尚未连接钱包。
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-head">
+              <div>
+                <h2>执行状态</h2>
+              </div>
+            </div>
+            <div id="action-status" class="status-box">
+              等待输入参数。
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-head">
+              <div>
+                <h2>本次结果</h2>
+              </div>
+            </div>
+            <div id="result-box" class="result-box">
+              还没有生成 proof。
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <div id="wallet-modal" class="wallet-modal" hidden>
+        <div class="wallet-modal-card">
+          <div class="wallet-modal-head">
+            <div class="wallet-modal-title">选择钱包</div>
+            <button type="button" id="wallet-modal-close" class="btn-secondary">关闭</button>
+          </div>
+          <div id="wallet-list" class="wallet-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+    <script>
+      const NETWORKS = {
+        staging: {
+          key: "staging",
+          label: "staging",
+          rpcUrl: "https://api2.elastos.cc/esc",
+          chainId: 20,
+          chainIdHex: "0x14",
+          chainName: "Elastos Smart Chain",
+          explorer: "https://esc.elastos.io",
+          issuer: "0x3990427F5C2F27193D5a81cF960d0A6c93fc21D6",
+          nativeCurrency: {
+            name: "ELA",
+            symbol: "ELA",
+            decimals: 18,
+          },
+        },
+        pg: {
+          key: "pg",
+          label: "pg",
+          rpcUrl: "https://api2.elastos.cc/pgp",
+          chainId: 860621,
+          chainIdHex: "0xd21cd",
+          chainName: "PGP Chain",
+          explorer: "https://pgp.elastos.io",
+          issuer: "0x91cf47c5d2b44Da124d4B54E9207aE6FB63D5Fa7",
+          nativeCurrency: {
+            name: "PGA",
+            symbol: "PGA",
+            decimals: 18,
+          },
+        },
+      };
+
+      const BTC_APIS = {
+        rpc: "https://nownodes-btc.bel2.org",
+        explorer: "https://nownodes-btcbook.bel2.org/api/v2",
+        fallback: "https://blockstream.info/api",
+      };
+
+      const MIN_CONFIRMATIONS = 3;
+
+      const ORDER_ABI = [
+        "function submitToLenderTransferProof(bytes rawData, uint32 blockHeight, (bytes32[] proof, bytes32 root, bytes32 leaf, bool[] flags) merkleProof, uint32 toLenderTxIndex) external",
+        "function submitRenewalOrderProof(bytes rawData, uint32 blockHeight, (bytes32[] proof, bytes32 root, bytes32 leaf, bool[] flags) merkleProof) external",
+      ];
+
+      const ISSUER_ABI = [
+        "function submitRegularUnlockTransferProof(address order, bytes txData, uint32 blockHeight, (bytes32[] proof, bytes32 root, bytes32 leaf, bool[] flags) merkleProof) external",
+      ];
+
+      const state = {
+        provider: null,
+        signer: null,
+        account: null,
+        chainIdHex: null,
+        walletProvider: null,
+        walletLabel: "",
+        discoveredWallets: [],
+      };
+
+      const elements = {
+        form: document.getElementById("submit-form"),
+        network: document.getElementById("network"),
+        proofType: document.getElementById("proof-type"),
+        orderAddress: document.getElementById("order-address"),
+        btcTxid: document.getElementById("btc-txid"),
+        formFooterNote: document.getElementById("form-footer-note"),
+        walletConnectButton: document.getElementById("wallet-connect-button"),
+        walletModal: document.getElementById("wallet-modal"),
+        walletModalClose: document.getElementById("wallet-modal-close"),
+        walletList: document.getElementById("wallet-list"),
+        submitProof: document.getElementById("submit-proof"),
+        walletStatus: document.getElementById("wallet-status"),
+        actionStatus: document.getElementById("action-status"),
+        resultBox: document.getElementById("result-box"),
+        networkRpc: document.getElementById("network-rpc"),
+        networkChainId: document.getElementById("network-chain-id"),
+        networkIssuer: document.getElementById("network-issuer"),
+        networkExplorer: document.getElementById("network-explorer"),
+      };
+
+      function getSelectedNetwork() {
+        return NETWORKS[elements.network.value];
+      }
+
+      function getSelectedProofType() {
+        return elements.proofType.value;
+      }
+
+      function setStatus(message, kind = "") {
+        elements.actionStatus.className = `status-box ${kind}`.trim();
+        elements.actionStatus.innerHTML = message;
+      }
+
+      function setWalletStatus(message, kind = "") {
+        elements.walletStatus.className = `status-box ${kind}`.trim();
+        elements.walletStatus.innerHTML = message;
+      }
+
+      function setResult(html) {
+        elements.resultBox.innerHTML = html;
+      }
+
+      function setBusy(isBusy) {
+        elements.submitProof.disabled = isBusy;
+        elements.walletConnectButton.disabled = isBusy;
+        elements.submitProof.textContent = isBusy ? "处理中..." : "生成 proof 并提交";
+      }
+
+      function shortAddress(address) {
+        if (!address) return "-";
+        return `${address.slice(0, 6)}...${address.slice(-4)}`;
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function extractErrorMessage(error, fallback = "未知错误") {
+        if (!error) {
+          return fallback;
+        }
+
+        const candidates = [
+          error.shortMessage,
+          error.reason,
+          error.message,
+          error.info?.error?.message,
+          error.info?.payload?.error?.message,
+          error.error?.message,
+          error.data?.message,
+          error.cause?.message,
+        ].filter(Boolean);
+
+        for (const candidate of candidates) {
+          if (typeof candidate !== "string") continue;
+          const trimmed = candidate.trim();
+          if (!trimmed) continue;
+
+          if (trimmed.includes("could not coalesce error")) {
+            continue;
+          }
+
+          return trimmed;
+        }
+
+        for (const candidate of candidates) {
+          if (typeof candidate === "string" && candidate.trim()) {
+            return candidate.trim();
+          }
+        }
+
+        return fallback;
+      }
+
+      function getWalletProvider() {
+        return state.walletProvider || window.ethereum || null;
+      }
+
+      function setWalletButton() {
+        const connected = Boolean(state.account);
+        elements.walletConnectButton.classList.toggle("connected", connected);
+        elements.walletConnectButton.textContent = connected
+          ? shortAddress(state.account)
+          : "Connect";
+      }
+
+      function walletKey(wallet) {
+        return wallet.info?.rdns || wallet.info?.uuid || wallet.info?.name || `wallet-${Math.random()}`;
+      }
+
+      function registerWallet(info, provider) {
+        if (!provider) return;
+        const key = info?.rdns || info?.uuid || info?.name || provider;
+        const exists = state.discoveredWallets.some((item) => item.key === key);
+        if (exists) return;
+        state.discoveredWallets.push({
+          key,
+          info: {
+            name: info?.name || (provider.isMetaMask ? "MetaMask" : "Injected Wallet"),
+            rdns: info?.rdns || "",
+          },
+          provider,
+        });
+      }
+
+      function setupWalletDiscovery() {
+        window.addEventListener("eip6963:announceProvider", (event) => {
+          registerWallet(event.detail?.info, event.detail?.provider);
+          renderWalletList();
+        });
+
+        if (window.ethereum) {
+          window.dispatchEvent(new Event("eip6963:requestProvider"));
+        }
+      }
+
+      function openWalletModal() {
+        renderWalletList();
+        elements.walletModal.hidden = false;
+      }
+
+      function closeWalletModal() {
+        elements.walletModal.hidden = true;
+      }
+
+      function renderWalletList() {
+        if (state.discoveredWallets.length === 0) {
+          elements.walletList.innerHTML = `
+            <div class="status-box warning">未检测到可用的 EVM 钱包。</div>
+          `;
+          return;
+        }
+
+        elements.walletList.innerHTML = state.discoveredWallets
+          .map(
+            (wallet) => `
+              <button type="button" class="wallet-item" data-wallet-key="${escapeHtml(wallet.key)}">
+                <span class="wallet-item-main">
+                  <span class="wallet-item-name">${escapeHtml(wallet.info.name || "Wallet")}</span>
+                  <span class="wallet-item-sub">${escapeHtml(wallet.info.rdns || "Injected EVM wallet")}</span>
+                </span>
+                <span class="wallet-item-sub">Connect</span>
+              </button>
+            `
+          )
+          .join("");
+      }
+
+      function updateNetworkInfo() {
+        const network = getSelectedNetwork();
+        elements.networkRpc.textContent = network.rpcUrl;
+        elements.networkChainId.textContent = `${network.chainId} (${network.chainIdHex})`;
+        elements.networkIssuer.textContent = network.issuer;
+        elements.networkExplorer.innerHTML = `<a href="${network.explorer}" target="_blank" rel="noreferrer">${network.explorer}</a>`;
+      }
+
+      function updateProofTypeHint() {
+        const proofType = getSelectedProofType();
+        if (proofType === "pledge") {
+          elements.formFooterNote.innerHTML = "BTC 确认数需至少 <strong>3</strong>。";
+        } else if (proofType === "unlock") {
+          elements.formFooterNote.innerHTML = "BTC 确认数需至少 <strong>3</strong>。";
+        } else {
+          elements.formFooterNote.innerHTML = "延期证明的 BTC 哈希可为空；若填写，确认数需至少 <strong>3</strong>。";
+        }
+      }
+
+      async function connectWallet() {
+        const providerObject = getWalletProvider();
+        if (!providerObject) {
+          throw new Error("未检测到可用 EVM 钱包，请先安装钱包扩展。");
+        }
+
+        state.provider = new ethers.BrowserProvider(providerObject);
+        await state.provider.send("eth_requestAccounts", []);
+        state.signer = await state.provider.getSigner();
+        state.account = await state.signer.getAddress();
+        state.chainIdHex = await providerObject.request({ method: "eth_chainId" });
+        const matchedWallet = state.discoveredWallets.find((wallet) => wallet.provider === providerObject);
+        state.walletLabel = matchedWallet?.info?.name || "Wallet";
+        setWalletStatus(
+          `已连接钱包：<span class="mono">${escapeHtml(state.walletLabel)}</span><br/>账户：<span class="mono">${escapeHtml(state.account)}</span><br/>当前链：<span class="mono">${escapeHtml(state.chainIdHex)}</span>`,
+          "success"
+        );
+        setWalletButton();
+      }
+
+      async function ensureSelectedNetwork() {
+        const network = getSelectedNetwork();
+        const providerObject = getWalletProvider();
+
+        if (!providerObject) {
+          throw new Error("未检测到可用 EVM 钱包，请先安装钱包扩展。");
+        }
+
+        let currentChainId = await providerObject.request({ method: "eth_chainId" });
+        if (currentChainId.toLowerCase() === network.chainIdHex.toLowerCase()) {
+          state.chainIdHex = currentChainId;
+          return;
+        }
+
+        try {
+          await providerObject.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: network.chainIdHex }],
+          });
+        } catch (error) {
+          if (error && error.code === 4902) {
+            await providerObject.request({
+              method: "wallet_addEthereumChain",
+              params: [
+                {
+                  chainId: network.chainIdHex,
+                  chainName: network.chainName,
+                  rpcUrls: [network.rpcUrl],
+                  nativeCurrency: network.nativeCurrency,
+                  blockExplorerUrls: [network.explorer],
+                },
+              ],
+            });
+            await providerObject.request({
+              method: "wallet_switchEthereumChain",
+              params: [{ chainId: network.chainIdHex }],
+            });
+          } else {
+            throw error;
+          }
+        }
+
+        state.chainIdHex = await providerObject.request({ method: "eth_chainId" });
+      }
+
+      async function btcRpc(method, params) {
+        const response = await fetch(BTC_APIS.rpc, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            jsonrpc: "1.0",
+            id: Date.now(),
+            method,
+            params,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`BTC RPC 请求失败: HTTP ${response.status}`);
+        }
+
+        const payload = await response.json();
+        if (payload.error) {
+          throw new Error(payload.error.message || "BTC RPC 返回错误");
+        }
+
+        return payload.result;
+      }
+
+      async function fetchJson(url) {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`请求失败: ${url} (${response.status})`);
+        }
+        return response.json();
+      }
+
+      async function fetchText(url) {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`请求失败: ${url} (${response.status})`);
+        }
+        return response.text();
+      }
+
+      async function fetchBtcTransaction(txid) {
+        try {
+          const tx = await btcRpc("getrawtransaction", [txid, true]);
+          return {
+            txid: tx.txid,
+            hex: tx.hex,
+            blockHash: tx.blockhash,
+            blockHeight: tx.blockheight,
+            confirmations: tx.confirmations || 0,
+          };
+        } catch (primaryError) {
+          const txInfo = await fetchJson(`${BTC_APIS.fallback}/tx/${txid}`);
+          const txHex = await fetchText(`${BTC_APIS.fallback}/tx/${txid}/hex`);
+          const blockHeight = txInfo.status?.block_height || null;
+          let confirmations = 0;
+          if (blockHeight) {
+            const bestHeightText = await fetchText(`${BTC_APIS.fallback}/blocks/tip/height`);
+            const bestHeight = Number(bestHeightText);
+            confirmations = bestHeight - blockHeight + 1;
+          }
+          return {
+            txid: txid,
+            hex: txHex.trim(),
+            blockHash: txInfo.status?.block_hash || null,
+            blockHeight,
+            confirmations,
+            primaryError,
+          };
+        }
+      }
+
+      async function fetchBlockData(blockHash) {
+        try {
+          const firstPage = await fetchJson(`${BTC_APIS.explorer}/block/${blockHash}`);
+          const txIds = Array.isArray(firstPage.txs) ? firstPage.txs.map((item) => item.txid) : [];
+
+          for (let page = 2; page <= Number(firstPage.totalPages || 0); page += 1) {
+            const pageData = await fetchJson(`${BTC_APIS.explorer}/block/${blockHash}?page=${page}`);
+            if (Array.isArray(pageData.txs)) {
+              txIds.push(...pageData.txs.map((item) => item.txid));
+            }
+          }
+
+          return {
+            height: Number(firstPage.height),
+            txIds,
+          };
+        } catch (primaryError) {
+          const blockInfo = await fetchJson(`${BTC_APIS.fallback}/block/${blockHash}`);
+          const txIds = await fetchJson(`${BTC_APIS.fallback}/block/${blockHash}/txids`);
+          return {
+            height: Number(blockInfo.height),
+            txIds,
+            primaryError,
+          };
+        }
+      }
+
+      function normalizeTxid(txid) {
+        return txid.trim().replace(/^0x/i, "").toLowerCase();
+      }
+
+      function validateInputs() {
+        const orderAddress = elements.orderAddress.value.trim();
+        const btcTxid = normalizeTxid(elements.btcTxid.value);
+        const proofType = getSelectedProofType();
+
+        if (!ethers.isAddress(orderAddress)) {
+          throw new Error("请输入正确的订单合约地址。");
+        }
+
+        if (proofType === "renewal") {
+          if (btcTxid !== "" && !/^[0-9a-f]{64}$/.test(btcTxid)) {
+            throw new Error("请输入正确的 BTC 交易哈希，或留空。");
+          }
+        } else if (!/^[0-9a-f]{64}$/.test(btcTxid)) {
+          throw new Error("请输入正确的 BTC 交易哈希。");
+        }
+
+        return {
+          orderAddress,
+          btcTxid: btcTxid === "" ? null : btcTxid,
+        };
+      }
+
+      function buildEmptyRenewalProof() {
+        const rawData = "0x";
+        const blockHeight = 0;
+        const merkleProof = {
+          proof: [],
+          root: ethers.ZeroHash,
+          leaf: ethers.ZeroHash,
+          flags: [],
+        };
+
+        return {
+          txRawData: rawData,
+          blockHeight,
+          confirmations: null,
+          txIndex: null,
+          merkleProof,
+        };
+      }
+
+      function hexToBytes(hex) {
+        const clean = hex.replace(/^0x/i, "").toLowerCase();
+        if (clean.length % 2 !== 0) {
+          throw new Error(`非法十六进制长度: ${hex}`);
+        }
+
+        const bytes = new Uint8Array(clean.length / 2);
+        for (let i = 0; i < clean.length; i += 2) {
+          bytes[i / 2] = Number.parseInt(clean.slice(i, i + 2), 16);
+        }
+        return bytes;
+      }
+
+      function bytesToHex(bytes) {
+        return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+      }
+
+      function reverseHex(hex) {
+        const bytes = hexToBytes(hex);
+        return bytesToHex(bytes.reverse());
+      }
+
+      async function computeBitcoinParent(leftHex, rightHex) {
+        const combinedHex = `${reverseHex(leftHex)}${reverseHex(rightHex)}`;
+        const firstHash = ethers.sha256(`0x${combinedHex}`);
+        const secondHash = ethers.sha256(firstHash);
+        return reverseHex(secondHash);
+      }
+
+      async function generateMerkleProof(txIds, targetTxid) {
+        const normalizedTxIds = txIds.map(normalizeTxid);
+        const target = normalizeTxid(targetTxid);
+        const txIndex = normalizedTxIds.indexOf(target);
+
+        if (txIndex < 0) {
+          throw new Error("目标 BTC 交易不在区块交易列表中，无法生成 merkle proof。");
+        }
+
+        let level = normalizedTxIds.slice();
+        let currentIndex = txIndex;
+        const proof = [];
+        const flags = [];
+
+        while (level.length > 1) {
+          const isRightNode = currentIndex % 2 === 1;
+          let siblingIndex;
+
+          if (isRightNode) {
+            siblingIndex = currentIndex - 1;
+          } else if (currentIndex === level.length - 1) {
+            siblingIndex = currentIndex;
+          } else {
+            siblingIndex = currentIndex + 1;
+          }
+
+          proof.push(`0x${level[siblingIndex]}`);
+          flags.push(!isRightNode);
+
+          const nextLevel = [];
+          for (let i = 0; i < level.length; i += 2) {
+            const left = level[i];
+            const right = i + 1 < level.length ? level[i + 1] : level[i];
+            nextLevel.push(await computeBitcoinParent(left, right));
+          }
+
+          level = nextLevel;
+          currentIndex = Math.floor(currentIndex / 2);
+        }
+
+        return {
+          txIndex,
+          proof,
+          flags,
+          root: `0x${level[0]}`,
+          leaf: `0x${target}`,
+        };
+      }
+
+      async function buildProof(txid) {
+        setStatus("正在查询 BTC 交易信息...", "warning");
+        const tx = await fetchBtcTransaction(txid);
+
+        if (!tx.hex) {
+          throw new Error("没有拿到 BTC raw transaction hex。");
+        }
+
+        if (!tx.blockHash) {
+          throw new Error("BTC 交易还没有被区块确认，暂时不能提交 proof。");
+        }
+
+        if ((tx.confirmations || 0) < MIN_CONFIRMATIONS) {
+          throw new Error(
+            `BTC 交易确认数不足，当前 ${tx.confirmations || 0}，至少需要 ${MIN_CONFIRMATIONS} 个确认。`
+          );
+        }
+
+        setStatus("正在生成 merkle proof...", "warning");
+        const blockData = await fetchBlockData(tx.blockHash);
+        const resolvedBlockHeight = Number(tx.blockHeight || blockData.height || 0);
+        if (!resolvedBlockHeight) {
+          throw new Error("无法获取 BTC 区块高度。");
+        }
+        const merkle = await generateMerkleProof(blockData.txIds, tx.txid);
+
+        return {
+          txRawData: `0x${tx.hex}`,
+          blockHeight: resolvedBlockHeight,
+          confirmations: Number(tx.confirmations || 0),
+          txIndex: merkle.txIndex,
+          merkleProof: {
+            proof: merkle.proof,
+            root: merkle.root,
+            leaf: merkle.leaf,
+            flags: merkle.flags,
+          },
+        };
+      }
+
+      async function submitProof(event) {
+        event.preventDefault();
+        setBusy(true);
+
+        try {
+          const { orderAddress, btcTxid } = validateInputs();
+          const proofType = getSelectedProofType();
+          const network = getSelectedNetwork();
+
+          if (!state.signer) {
+            await connectWallet();
+          }
+
+          setStatus("正在切换 Metamask 网络...", "warning");
+          await ensureSelectedNetwork();
+
+          const providerObject = getWalletProvider();
+          state.provider = new ethers.BrowserProvider(providerObject);
+          state.signer = await state.provider.getSigner();
+          state.account = await state.signer.getAddress();
+          state.chainIdHex = await providerObject.request({ method: "eth_chainId" });
+          setWalletStatus(
+            `已连接钱包：<span class="mono">${escapeHtml(state.walletLabel || "Wallet")}</span><br/>账户：<span class="mono">${escapeHtml(state.account)}</span><br/>当前链：<span class="mono">${escapeHtml(state.chainIdHex)}</span>`,
+            "success"
+          );
+          setWalletButton();
+
+          let proof;
+          if (proofType === "renewal" && !btcTxid) {
+            setStatus("未提供 BTC 哈希，正在直接提交延期证明...", "warning");
+            proof = buildEmptyRenewalProof();
+          } else {
+            proof = await buildProof(btcTxid);
+          }
+
+          setResult(
+            btcTxid
+              ? `
+            <div class="result-list">
+              <div class="result-item">
+                <div class="key">BTC Tx</div>
+                <div class="mono">${escapeHtml(btcTxid)}</div>
+              </div>
+              <div class="result-item">
+                <div class="key">Block Height</div>
+                <div>${escapeHtml(proof.blockHeight)}</div>
+              </div>
+              <div class="result-item">
+                <div class="key">Confirmations</div>
+                <div>${escapeHtml(proof.confirmations)}</div>
+              </div>
+              <div class="result-item">
+                <div class="key">Proof</div>
+                <div>${escapeHtml(proof.merkleProof.proof.length)} nodes</div>
+              </div>
+            </div>
+          `
+              : `
+            <div class="result-list">
+              <div class="result-item">
+                <div class="key">BTC Tx</div>
+                <div>未提供</div>
+              </div>
+              <div class="result-item">
+                <div class="key">Proof</div>
+                <div>空 proof</div>
+              </div>
+            </div>
+          `
+          );
+
+          let txResponse;
+          if (proofType === "pledge") {
+            setStatus("正在提交质押证明...", "warning");
+            const orderContract = new ethers.Contract(orderAddress, ORDER_ABI, state.signer);
+            txResponse = await orderContract.submitToLenderTransferProof(
+              proof.txRawData,
+              proof.blockHeight,
+              proof.merkleProof,
+              0
+            );
+          } else if (proofType === "unlock") {
+            setStatus("正在提交解锁证明...", "warning");
+            const issuerContract = new ethers.Contract(network.issuer, ISSUER_ABI, state.signer);
+            txResponse = await issuerContract.submitRegularUnlockTransferProof(
+              orderAddress,
+              proof.txRawData,
+              proof.blockHeight,
+              proof.merkleProof
+            );
+          } else {
+            setStatus("正在提交延期证明...", "warning");
+            const orderContract = new ethers.Contract(orderAddress, ORDER_ABI, state.signer);
+            txResponse = await orderContract.submitRenewalOrderProof(
+              proof.txRawData,
+              proof.blockHeight,
+              proof.merkleProof
+            );
+          }
+
+          setStatus(
+            `已发起链上交易，等待打包确认...<br/>交易哈希：<span class="mono">${escapeHtml(txResponse.hash)}</span>`,
+            "warning"
+          );
+
+          const receipt = await txResponse.wait();
+          if (!receipt || Number(receipt.status) !== 1) {
+            throw new Error("链上交易执行失败。");
+          }
+
+          setStatus(
+            `已提交完成。<br/>交易哈希：<span class="mono">${escapeHtml(txResponse.hash)}</span>`,
+            "success"
+          );
+
+          setResult(`
+            <div class="result-list">
+              <div class="result-item">
+                <div class="key">状态</div>
+                <div>已提交完成</div>
+              </div>
+              <div class="result-item">
+                <div class="key">类型</div>
+                <div>${proofType === "pledge" ? "质押证明" : proofType === "unlock" ? "解锁证明" : "延期证明"}</div>
+              </div>
+              <div class="result-item">
+                <div class="key">EVM Tx</div>
+                <div class="mono">${escapeHtml(txResponse.hash)}</div>
+              </div>
+              <div class="result-item">
+                <div class="key">Order</div>
+                <div class="mono">${escapeHtml(shortAddress(orderAddress))}</div>
+              </div>
+              <div class="result-item">
+                <div class="key">BTC Height</div>
+                <div>${escapeHtml(proof.blockHeight)}</div>
+              </div>
+            </div>
+          `);
+        } catch (error) {
+          console.error(error);
+          const message = extractErrorMessage(error);
+          setStatus(`提交失败：${escapeHtml(message)}`, "error");
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      function attachWalletListeners() {
+        const providerObject = getWalletProvider();
+        if (!providerObject || typeof providerObject.on !== "function") {
+          return;
+        }
+
+        providerObject.on("accountsChanged", async (accounts) => {
+          if (!accounts || accounts.length === 0) {
+            state.provider = null;
+            state.signer = null;
+            state.account = null;
+            state.chainIdHex = null;
+            setWalletStatus("钱包已断开连接。", "warning");
+            setWalletButton();
+            return;
+          }
+
+          state.account = accounts[0];
+          state.chainIdHex = await providerObject.request({ method: "eth_chainId" });
+          setWalletStatus(
+            `已连接钱包：<span class="mono">${escapeHtml(state.walletLabel || "Wallet")}</span><br/>账户：<span class="mono">${escapeHtml(state.account)}</span><br/>当前链：<span class="mono">${escapeHtml(state.chainIdHex)}</span>`,
+            "success"
+          );
+          setWalletButton();
+        });
+
+        providerObject.on("chainChanged", async (chainId) => {
+          state.chainIdHex = chainId;
+          if (state.account) {
+            setWalletStatus(
+              `已连接钱包：<span class="mono">${escapeHtml(state.walletLabel || "Wallet")}</span><br/>账户：<span class="mono">${escapeHtml(state.account)}</span><br/>当前链：<span class="mono">${escapeHtml(chainId)}</span>`,
+              "success"
+            );
+          }
+        });
+      }
+
+      async function handleWalletSelect(walletKey) {
+        try {
+          setBusy(true);
+          const selectedWallet = state.discoveredWallets.find((wallet) => wallet.key === walletKey);
+          if (selectedWallet) {
+            state.walletProvider = selectedWallet.provider;
+            state.walletLabel = selectedWallet.info?.name || "Wallet";
+          }
+          closeWalletModal();
+          setStatus("正在连接钱包...", "warning");
+          await connectWallet();
+          attachWalletListeners();
+          setStatus("钱包已连接。", "success");
+        } catch (error) {
+          console.error(error);
+          const message = extractErrorMessage(error, "连接钱包失败");
+          setStatus(`连接钱包失败：${escapeHtml(message)}`, "error");
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      async function handleConnectClick() {
+        if (state.account) {
+          openWalletModal();
+          return;
+        }
+
+        if (state.discoveredWallets.length === 0 && window.ethereum) {
+          state.walletProvider = window.ethereum;
+          state.walletLabel = window.ethereum.isMetaMask
+            ? "MetaMask"
+            : window.ethereum.isCoinbaseWallet
+              ? "Coinbase Wallet"
+              : "Injected Wallet";
+          await handleWalletSelect();
+          return;
+        }
+
+        if (state.discoveredWallets.length <= 1) {
+          const singleWallet = state.discoveredWallets[0];
+          await handleWalletSelect(singleWallet?.key);
+          return;
+        }
+
+        openWalletModal();
+      }
+
+      function init() {
+        updateNetworkInfo();
+        updateProofTypeHint();
+        setupWalletDiscovery();
+        setWalletButton();
+
+        elements.network.addEventListener("change", () => {
+          updateNetworkInfo();
+          setStatus("网络已切换。");
+        });
+
+        elements.proofType.addEventListener("change", updateProofTypeHint);
+        elements.walletConnectButton.addEventListener("click", handleConnectClick);
+        elements.walletModalClose.addEventListener("click", closeWalletModal);
+        elements.walletList.addEventListener("click", async (event) => {
+          const button = event.target.closest("[data-wallet-key]");
+          if (!button) return;
+          await handleWalletSelect(button.dataset.walletKey);
+        });
+        elements.walletModal.addEventListener("click", (event) => {
+          if (event.target === elements.walletModal) {
+            closeWalletModal();
+          }
+        });
+        elements.form.addEventListener("submit", submitProof);
+      }
+
+      init();
+    </script>
+  </body>
+</html>
