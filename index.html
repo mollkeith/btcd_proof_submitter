@@ -178,6 +178,14 @@
         justify-content: flex-end;
       }
 
+      .lang-toggle-btn {
+        min-width: 74px;
+        min-height: 44px;
+        padding-inline: 14px;
+        border-radius: 999px;
+        font-weight: 700;
+      }
+
       .wallet-connect-btn {
         min-width: 116px;
         min-height: 44px;
@@ -862,12 +870,13 @@
         <div class="brand">
           <div class="brand-mark">BT</div>
           <div class="brand-copy">
-            <div class="brand-title">BTC Proof Submitter</div>
-            <div class="brand-subtitle">Static utility for pledge and unlock proof submission</div>
+            <div id="brand-title" class="brand-title">BTC Proof Submitter</div>
+            <div id="brand-subtitle" class="brand-subtitle">Static utility for pledge and unlock proof submission</div>
           </div>
         </div>
         <div class="topbar-actions">
-          <div class="topbar-note">EVM Wallet</div>
+          <div id="topbar-note" class="topbar-note">EVM Wallet</div>
+          <button type="button" id="language-toggle-button" class="btn-secondary lang-toggle-btn">EN</button>
           <button type="button" id="wallet-connect-button" class="wallet-connect-btn">Connect</button>
         </div>
       </section>
@@ -876,18 +885,18 @@
         <section class="card">
           <div class="section-head">
             <div>
-              <h2>提交证明</h2>
+              <h2 id="submit-heading">提交证明</h2>
             </div>
-            <div class="section-tag">Live</div>
+            <div id="submit-tag" class="section-tag">Live</div>
           </div>
 
           <form id="submit-form" class="stack">
             <div class="form-sections">
               <div class="subcard">
-                <div class="subcard-title">环境配置</div>
+                <div id="config-title" class="subcard-title">环境配置</div>
                 <div class="field-row">
                   <div class="field">
-                    <label for="network">网络</label>
+                    <label id="network-label" for="network">网络</label>
                     <select id="network" name="network">
                       <option value="staging">staging</option>
                       <option value="pg">pg</option>
@@ -895,21 +904,21 @@
                   </div>
 
                   <div class="field">
-                    <label for="proof-type">证明类型</label>
+                    <label id="proof-type-label" for="proof-type">证明类型</label>
                     <select id="proof-type" name="proof-type">
-                      <option value="pledge">提交质押证明</option>
-                      <option value="unlock">提交解锁证明</option>
-                      <option value="renewal">提交延期证明</option>
-                      <option value="renewal-topup">提交延期补仓证明</option>
+                      <option id="proof-type-pledge" value="pledge">提交质押证明</option>
+                      <option id="proof-type-unlock" value="unlock">提交解锁证明</option>
+                      <option id="proof-type-renewal" value="renewal">提交延期证明</option>
+                      <option id="proof-type-renewal-topup" value="renewal-topup">提交延期补仓证明</option>
                     </select>
                   </div>
                 </div>
               </div>
 
               <div class="subcard">
-                <div class="subcard-title">业务参数</div>
+                <div id="params-title" class="subcard-title">业务参数</div>
                 <div class="field">
-                  <label for="order-address">Order ID / 订单合约地址</label>
+                  <label id="order-address-label" for="order-address">Order ID / 订单合约地址</label>
                   <input
                     id="order-address"
                     name="order-address"
@@ -921,7 +930,7 @@
 
                 <div class="field-row" id="btc-txid-row">
                   <div class="field">
-                    <label for="btc-txid">BTC 交易哈希</label>
+                    <label id="btc-txid-label" for="btc-txid">BTC 交易哈希</label>
                     <input
                       id="btc-txid"
                       name="btc-txid"
@@ -950,7 +959,7 @@
           <section class="card compact-card sidebar-card-network">
             <div class="section-head">
               <div>
-                <h2>当前网络</h2>
+                <h2 id="network-card-title">当前网络</h2>
               </div>
             </div>
             <div class="pill-grid compact">
@@ -963,11 +972,11 @@
                 <div id="network-chain-id" class="value mono"></div>
               </div>
               <div class="pill compact">
-                <div class="title">Issuer 合约</div>
+                <div id="issuer-title" class="title">Issuer 合约</div>
                 <div id="network-issuer" class="value mono"></div>
               </div>
               <div class="pill compact">
-                <div class="title">浏览器</div>
+                <div id="explorer-title" class="title">浏览器</div>
                 <div id="network-explorer" class="value"></div>
               </div>
             </div>
@@ -976,7 +985,7 @@
           <section class="card compact-card sidebar-card-wallet">
             <div class="section-head">
               <div>
-                <h2>钱包状态</h2>
+                <h2 id="wallet-card-title">钱包状态</h2>
               </div>
             </div>
             <div id="wallet-status" class="status-box compact warning">
@@ -987,7 +996,7 @@
           <section class="card sidebar-card-status">
             <div class="section-head">
               <div>
-                <h2>执行状态</h2>
+                <h2 id="action-card-title">执行状态</h2>
               </div>
             </div>
             <div id="action-status" class="status-box">
@@ -998,7 +1007,7 @@
           <section class="card sidebar-card-result">
             <div class="section-head">
               <div>
-                <h2>本次结果</h2>
+                <h2 id="result-card-title">本次结果</h2>
               </div>
             </div>
             <div id="result-box" class="result-box">
@@ -1011,7 +1020,7 @@
       <div id="wallet-modal" class="wallet-modal" hidden>
         <div class="wallet-modal-card">
           <div class="wallet-modal-head">
-            <div class="wallet-modal-title">选择钱包</div>
+            <div id="wallet-modal-title" class="wallet-modal-title">选择钱包</div>
             <button type="button" id="wallet-modal-close" class="btn-secondary">关闭</button>
           </div>
           <div id="wallet-list" class="wallet-list"></div>
@@ -1071,6 +1080,223 @@
         "function submitRegularUnlockTransferProof(address order, bytes txData, uint32 blockHeight, (bytes32[] proof, bytes32 root, bytes32 leaf, bool[] flags) merkleProof) external",
       ];
 
+      const LANG_STORAGE_KEY = "proof_submitter_locale";
+
+      const I18N = {
+        zh: {
+          meta: {
+            pageTitle: "Proof Submitter",
+            brandTitle: "BTC Proof Submitter",
+            brandSubtitle: "用于提交 BTC 质押、解锁和延期证明的静态工具",
+            topbarNote: "EVM 钱包",
+            submitTag: "Live",
+            languageToggle: "EN",
+          },
+          form: {
+            heading: "提交证明",
+            configTitle: "环境配置",
+            networkLabel: "网络",
+            proofTypeLabel: "证明类型",
+            paramsTitle: "业务参数",
+            orderAddressLabel: "Order ID / 订单合约地址",
+            btcTxidLabel: "BTC 交易哈希",
+            btcTxidPlaceholder: "例如：b0239a30d8344387...",
+            submit: "生成 proof 并提交",
+            processing: "处理中...",
+            footerMinConfirmations: "BTC 确认数需至少 <strong>3</strong>。",
+            footerRenewal: "延期证明会直接提交空 proof。",
+            footerRenewalTopup: "延期补仓证明需要填写 BTC 哈希，确认数需至少 <strong>3</strong>。",
+          },
+          proofTypes: {
+            pledge: "提交质押证明",
+            unlock: "提交解锁证明",
+            renewal: "提交延期证明",
+            renewalTopup: "提交延期补仓证明",
+          },
+          resultProofTypes: {
+            pledge: "质押证明",
+            unlock: "解锁证明",
+            renewal: "延期证明",
+            renewalTopup: "延期补仓证明",
+          },
+          cards: {
+            network: "当前网络",
+            wallet: "钱包状态",
+            action: "执行状态",
+            result: "本次结果",
+            issuer: "Issuer 合约",
+            explorer: "浏览器",
+          },
+          wallet: {
+            defaultName: "钱包",
+            connect: "Connect",
+            modalTitle: "选择钱包",
+            modalClose: "关闭",
+            notConnected: "尚未连接钱包。",
+            notDetected: "未检测到可用的 EVM 钱包。",
+            injectedWallet: "注入式 EVM 钱包",
+            connected: "已连接钱包：<span class=\"mono\">{wallet}</span><br/>账户：<span class=\"mono\">{account}</span><br/>当前链：<span class=\"mono\">{chainId}</span>",
+            disconnected: "钱包已断开连接。",
+            connecting: "正在连接钱包...",
+            connectedShort: "钱包已连接。",
+            connectFailed: "连接钱包失败：{message}",
+          },
+          status: {
+            waitingInput: "等待输入参数。",
+            noResult: "还没有生成 proof。",
+            queryingBtc: "正在查询 BTC 交易信息...",
+            generatingProof: "正在生成 merkle proof...",
+            switchingNetwork: "正在切换钱包网络...",
+            renewalDirect: "未提供 BTC 哈希，正在直接提交延期证明...",
+            submittingPledge: "正在提交质押证明...",
+            submittingUnlock: "正在提交解锁证明...",
+            submittingRenewal: "正在提交延期证明...",
+            submittingRenewalTopup: "正在提交延期补仓证明...",
+            txSubmitted: "已发起链上交易，等待打包确认...<br/>交易哈希：<span class=\"mono\">{hash}</span>",
+            txSuccess: "已提交完成。<br/>交易哈希：<span class=\"mono\">{hash}</span>",
+            submitFailed: "提交失败：{message}",
+            networkSwitched: "网络已切换。",
+          },
+          result: {
+            status: "状态",
+            type: "类型",
+            evmTx: "EVM Tx",
+            order: "Order",
+            btcHeight: "BTC Height",
+            btcTx: "BTC Tx",
+            blockHeight: "Block Height",
+            confirmations: "Confirmations",
+            proof: "Proof",
+            proofNodes: "{count} 个节点",
+            notProvided: "未提供",
+            emptyProof: "空 proof",
+            submitted: "已提交完成",
+          },
+          errors: {
+            unknown: "未知错误",
+            noWallet: "未检测到可用 EVM 钱包，请先安装钱包扩展。",
+            invalidOrderAddress: "请输入正确的订单合约地址。",
+            invalidBtcTxid: "请输入正确的 BTC 交易哈希。",
+            btcRpcHttp: "BTC RPC 请求失败: HTTP {status}",
+            btcRpcError: "BTC RPC 返回错误",
+            requestFailed: "请求失败: {url} ({status})",
+            invalidHexLength: "非法十六进制长度: {hex}",
+            txNotInBlock: "目标 BTC 交易不在区块交易列表中，无法生成 merkle proof。",
+            noRawTx: "没有拿到 BTC raw transaction hex。",
+            txUnconfirmed: "BTC 交易还没有被区块确认，暂时不能提交 proof。",
+            insufficientConfirmations: "BTC 交易确认数不足，当前 {current}，至少需要 {required} 个确认。",
+            noBlockHeight: "无法获取 BTC 区块高度。",
+            txFailed: "链上交易执行失败。",
+          },
+        },
+        en: {
+          meta: {
+            pageTitle: "Proof Submitter",
+            brandTitle: "BTC Proof Submitter",
+            brandSubtitle: "Static utility for BTC pledge, unlock, and renewal proof submission",
+            topbarNote: "EVM Wallet",
+            submitTag: "Live",
+            languageToggle: "中文",
+          },
+          form: {
+            heading: "Submit Proof",
+            configTitle: "Configuration",
+            networkLabel: "Network",
+            proofTypeLabel: "Proof Type",
+            paramsTitle: "Parameters",
+            orderAddressLabel: "Order ID / Order contract address",
+            btcTxidLabel: "BTC Transaction Hash",
+            btcTxidPlaceholder: "e.g. b0239a30d8344387...",
+            submit: "Generate Proof and Submit",
+            processing: "Processing...",
+            footerMinConfirmations: "BTC confirmations must be at least <strong>3</strong>.",
+            footerRenewal: "Renewal proof will submit an empty proof directly.",
+            footerRenewalTopup: "Renewal top-up proof requires a BTC hash with at least <strong>3</strong> confirmations.",
+          },
+          proofTypes: {
+            pledge: "Submit Pledge Proof",
+            unlock: "Submit Unlock Proof",
+            renewal: "Submit Renewal Proof",
+            renewalTopup: "Submit Renewal Top-up Proof",
+          },
+          resultProofTypes: {
+            pledge: "Pledge Proof",
+            unlock: "Unlock Proof",
+            renewal: "Renewal Proof",
+            renewalTopup: "Renewal Top-up Proof",
+          },
+          cards: {
+            network: "Current Network",
+            wallet: "Wallet Status",
+            action: "Action Status",
+            result: "Latest Result",
+            issuer: "Issuer Contract",
+            explorer: "Explorer",
+          },
+          wallet: {
+            defaultName: "Wallet",
+            connect: "Connect",
+            modalTitle: "Select Wallet",
+            modalClose: "Close",
+            notConnected: "Wallet not connected.",
+            notDetected: "No EVM wallet detected.",
+            injectedWallet: "Injected EVM wallet",
+            connected: "Connected wallet: <span class=\"mono\">{wallet}</span><br/>Account: <span class=\"mono\">{account}</span><br/>Current chain: <span class=\"mono\">{chainId}</span>",
+            disconnected: "Wallet disconnected.",
+            connecting: "Connecting wallet...",
+            connectedShort: "Wallet connected.",
+            connectFailed: "Wallet connection failed: {message}",
+          },
+          status: {
+            waitingInput: "Waiting for input.",
+            noResult: "No proof has been generated yet.",
+            queryingBtc: "Fetching BTC transaction data...",
+            generatingProof: "Generating merkle proof...",
+            switchingNetwork: "Switching wallet network...",
+            renewalDirect: "No BTC hash provided, submitting renewal proof directly...",
+            submittingPledge: "Submitting pledge proof...",
+            submittingUnlock: "Submitting unlock proof...",
+            submittingRenewal: "Submitting renewal proof...",
+            submittingRenewalTopup: "Submitting renewal top-up proof...",
+            txSubmitted: "Transaction sent, waiting for confirmation...<br/>Tx hash: <span class=\"mono\">{hash}</span>",
+            txSuccess: "Submitted successfully.<br/>Tx hash: <span class=\"mono\">{hash}</span>",
+            submitFailed: "Submission failed: {message}",
+            networkSwitched: "Network switched.",
+          },
+          result: {
+            status: "Status",
+            type: "Type",
+            evmTx: "EVM Tx",
+            order: "Order",
+            btcHeight: "BTC Height",
+            btcTx: "BTC Tx",
+            blockHeight: "Block Height",
+            confirmations: "Confirmations",
+            proof: "Proof",
+            proofNodes: "{count} nodes",
+            notProvided: "Not provided",
+            emptyProof: "Empty proof",
+            submitted: "Submitted successfully",
+          },
+          errors: {
+            unknown: "Unknown error",
+            noWallet: "No EVM wallet detected. Please install a wallet extension first.",
+            invalidOrderAddress: "Please enter a valid order contract address.",
+            invalidBtcTxid: "Please enter a valid BTC transaction hash.",
+            btcRpcHttp: "BTC RPC request failed: HTTP {status}",
+            btcRpcError: "BTC RPC returned an error",
+            requestFailed: "Request failed: {url} ({status})",
+            invalidHexLength: "Invalid hex length: {hex}",
+            txNotInBlock: "Target BTC transaction is not in the block transaction list, unable to generate merkle proof.",
+            noRawTx: "BTC raw transaction hex is unavailable.",
+            txUnconfirmed: "BTC transaction is not yet confirmed in a block, proof cannot be submitted yet.",
+            insufficientConfirmations: "BTC confirmations are insufficient: current {current}, required at least {required}.",
+            noBlockHeight: "Unable to retrieve BTC block height.",
+            txFailed: "On-chain transaction execution failed.",
+          },
+        },
+      };
+
       const state = {
         provider: null,
         signer: null,
@@ -1079,18 +1305,48 @@
         walletProvider: null,
         walletLabel: "",
         discoveredWallets: [],
+        locale: (() => {
+          try {
+            return localStorage.getItem(LANG_STORAGE_KEY) || "zh";
+          } catch {
+            return "zh";
+          }
+        })(),
       };
 
       const elements = {
+        brandTitle: document.getElementById("brand-title"),
+        brandSubtitle: document.getElementById("brand-subtitle"),
+        topbarNote: document.getElementById("topbar-note"),
+        languageToggleButton: document.getElementById("language-toggle-button"),
         form: document.getElementById("submit-form"),
+        submitHeading: document.getElementById("submit-heading"),
+        submitTag: document.getElementById("submit-tag"),
+        configTitle: document.getElementById("config-title"),
+        networkLabel: document.getElementById("network-label"),
         network: document.getElementById("network"),
+        proofTypeLabel: document.getElementById("proof-type-label"),
         proofType: document.getElementById("proof-type"),
+        proofTypePledge: document.getElementById("proof-type-pledge"),
+        proofTypeUnlock: document.getElementById("proof-type-unlock"),
+        proofTypeRenewal: document.getElementById("proof-type-renewal"),
+        proofTypeRenewalTopup: document.getElementById("proof-type-renewal-topup"),
+        paramsTitle: document.getElementById("params-title"),
+        orderAddressLabel: document.getElementById("order-address-label"),
         orderAddress: document.getElementById("order-address"),
         btcTxidRow: document.getElementById("btc-txid-row"),
+        btcTxidLabel: document.getElementById("btc-txid-label"),
         btcTxid: document.getElementById("btc-txid"),
         formFooterNote: document.getElementById("form-footer-note"),
+        networkCardTitle: document.getElementById("network-card-title"),
+        issuerTitle: document.getElementById("issuer-title"),
+        explorerTitle: document.getElementById("explorer-title"),
+        walletCardTitle: document.getElementById("wallet-card-title"),
+        actionCardTitle: document.getElementById("action-card-title"),
+        resultCardTitle: document.getElementById("result-card-title"),
         walletConnectButton: document.getElementById("wallet-connect-button"),
         walletModal: document.getElementById("wallet-modal"),
+        walletModalTitle: document.getElementById("wallet-modal-title"),
         walletModalClose: document.getElementById("wallet-modal-close"),
         walletList: document.getElementById("wallet-list"),
         submitProof: document.getElementById("submit-proof"),
@@ -1111,6 +1367,80 @@
         return elements.proofType.value;
       }
 
+      function t(key, vars = {}) {
+        const dictionary = I18N[state.locale] || I18N.zh;
+        const value = key.split(".").reduce((current, part) => current?.[part], dictionary);
+        if (typeof value !== "string") {
+          return key;
+        }
+
+        return value.replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? ""));
+      }
+
+      function setLocale(locale) {
+        state.locale = locale === "en" ? "en" : "zh";
+        try {
+          localStorage.setItem(LANG_STORAGE_KEY, state.locale);
+        } catch {}
+
+        renderStaticTexts();
+        renderWalletList();
+        updateNetworkInfo();
+        updateProofTypeHint();
+        setWalletButton();
+
+        if (state.account) {
+          setWalletStatus(
+            t("wallet.connected", {
+              wallet: escapeHtml(state.walletLabel || t("wallet.defaultName")),
+              account: escapeHtml(state.account),
+              chainId: escapeHtml(state.chainIdHex || ""),
+            }),
+            "success"
+          );
+        } else {
+          setWalletStatus(t("wallet.notConnected"), "warning");
+        }
+
+        if (!elements.actionStatus.textContent.trim() || elements.actionStatus.textContent.trim() === I18N.zh.status.waitingInput || elements.actionStatus.textContent.trim() === I18N.en.status.waitingInput) {
+          setStatus(t("status.waitingInput"));
+        }
+
+        if (!elements.resultBox.textContent.trim() || elements.resultBox.textContent.trim() === I18N.zh.status.noResult || elements.resultBox.textContent.trim() === I18N.en.status.noResult) {
+          setResult(t("status.noResult"));
+        }
+      }
+
+      function renderStaticTexts() {
+        document.title = t("meta.pageTitle");
+        elements.brandTitle.textContent = t("meta.brandTitle");
+        elements.brandSubtitle.textContent = t("meta.brandSubtitle");
+        elements.topbarNote.textContent = t("meta.topbarNote");
+        elements.languageToggleButton.textContent = t("meta.languageToggle");
+        elements.submitHeading.textContent = t("form.heading");
+        elements.submitTag.textContent = t("meta.submitTag");
+        elements.configTitle.textContent = t("form.configTitle");
+        elements.networkLabel.textContent = t("form.networkLabel");
+        elements.proofTypeLabel.textContent = t("form.proofTypeLabel");
+        elements.proofTypePledge.textContent = t("proofTypes.pledge");
+        elements.proofTypeUnlock.textContent = t("proofTypes.unlock");
+        elements.proofTypeRenewal.textContent = t("proofTypes.renewal");
+        elements.proofTypeRenewalTopup.textContent = t("proofTypes.renewalTopup");
+        elements.paramsTitle.textContent = t("form.paramsTitle");
+        elements.orderAddressLabel.textContent = t("form.orderAddressLabel");
+        elements.btcTxidLabel.textContent = t("form.btcTxidLabel");
+        elements.btcTxid.placeholder = t("form.btcTxidPlaceholder");
+        elements.networkCardTitle.textContent = t("cards.network");
+        elements.issuerTitle.textContent = t("cards.issuer");
+        elements.explorerTitle.textContent = t("cards.explorer");
+        elements.walletCardTitle.textContent = t("cards.wallet");
+        elements.actionCardTitle.textContent = t("cards.action");
+        elements.resultCardTitle.textContent = t("cards.result");
+        elements.walletModalTitle.textContent = t("wallet.modalTitle");
+        elements.walletModalClose.textContent = t("wallet.modalClose");
+        elements.submitProof.textContent = t("form.submit");
+      }
+
       function setStatus(message, kind = "") {
         elements.actionStatus.className = `status-box ${kind}`.trim();
         elements.actionStatus.innerHTML = message;
@@ -1128,7 +1458,7 @@
       function setBusy(isBusy) {
         elements.submitProof.disabled = isBusy;
         elements.walletConnectButton.disabled = isBusy;
-        elements.submitProof.textContent = isBusy ? "处理中..." : "生成 proof 并提交";
+        elements.submitProof.textContent = isBusy ? t("form.processing") : t("form.submit");
       }
 
       function shortAddress(address) {
@@ -1145,7 +1475,7 @@
           .replaceAll("'", "&#39;");
       }
 
-      function extractErrorMessage(error, fallback = "未知错误") {
+      function extractErrorMessage(error, fallback = t("errors.unknown")) {
         if (!error) {
           return fallback;
         }
@@ -1191,7 +1521,7 @@
         elements.walletConnectButton.classList.toggle("connected", connected);
         elements.walletConnectButton.textContent = connected
           ? shortAddress(state.account)
-          : "Connect";
+          : t("wallet.connect");
       }
 
       function walletKey(wallet) {
@@ -1206,7 +1536,7 @@
         state.discoveredWallets.push({
           key,
           info: {
-            name: info?.name || (provider.isMetaMask ? "MetaMask" : "Injected Wallet"),
+            name: info?.name || (provider.isMetaMask ? "MetaMask" : t("wallet.injectedWallet")),
             rdns: info?.rdns || "",
           },
           provider,
@@ -1236,7 +1566,7 @@
       function renderWalletList() {
         if (state.discoveredWallets.length === 0) {
           elements.walletList.innerHTML = `
-            <div class="status-box warning">未检测到可用的 EVM 钱包。</div>
+            <div class="status-box warning">${t("wallet.notDetected")}</div>
           `;
           return;
         }
@@ -1246,10 +1576,10 @@
             (wallet) => `
               <button type="button" class="wallet-item" data-wallet-key="${escapeHtml(wallet.key)}">
                 <span class="wallet-item-main">
-                  <span class="wallet-item-name">${escapeHtml(wallet.info.name || "Wallet")}</span>
-                  <span class="wallet-item-sub">${escapeHtml(wallet.info.rdns || "Injected EVM wallet")}</span>
+                  <span class="wallet-item-name">${escapeHtml(wallet.info.name || t("wallet.defaultName"))}</span>
+                  <span class="wallet-item-sub">${escapeHtml(wallet.info.rdns || t("wallet.injectedWallet"))}</span>
                 </span>
-                <span class="wallet-item-sub">Connect</span>
+                <span class="wallet-item-sub">${escapeHtml(t("wallet.connect"))}</span>
               </button>
             `
           )
@@ -1268,23 +1598,23 @@
         const proofType = getSelectedProofType();
         if (proofType === "pledge") {
           elements.btcTxidRow.hidden = false;
-          elements.formFooterNote.innerHTML = "BTC 确认数需至少 <strong>3</strong>。";
+          elements.formFooterNote.innerHTML = t("form.footerMinConfirmations");
         } else if (proofType === "unlock") {
           elements.btcTxidRow.hidden = false;
-          elements.formFooterNote.innerHTML = "BTC 确认数需至少 <strong>3</strong>。";
+          elements.formFooterNote.innerHTML = t("form.footerMinConfirmations");
         } else if (proofType === "renewal") {
           elements.btcTxidRow.hidden = true;
-          elements.formFooterNote.innerHTML = "延期证明会直接提交空 proof。";
+          elements.formFooterNote.innerHTML = t("form.footerRenewal");
         } else {
           elements.btcTxidRow.hidden = false;
-          elements.formFooterNote.innerHTML = "延期补仓证明需要填写 BTC 哈希，确认数需至少 <strong>3</strong>。";
+          elements.formFooterNote.innerHTML = t("form.footerRenewalTopup");
         }
       }
 
       async function connectWallet() {
         const providerObject = getWalletProvider();
         if (!providerObject) {
-          throw new Error("未检测到可用 EVM 钱包，请先安装钱包扩展。");
+          throw new Error(t("errors.noWallet"));
         }
 
         state.provider = new ethers.BrowserProvider(providerObject);
@@ -1293,9 +1623,13 @@
         state.account = await state.signer.getAddress();
         state.chainIdHex = await providerObject.request({ method: "eth_chainId" });
         const matchedWallet = state.discoveredWallets.find((wallet) => wallet.provider === providerObject);
-        state.walletLabel = matchedWallet?.info?.name || "Wallet";
+        state.walletLabel = matchedWallet?.info?.name || t("wallet.defaultName");
         setWalletStatus(
-          `已连接钱包：<span class="mono">${escapeHtml(state.walletLabel)}</span><br/>账户：<span class="mono">${escapeHtml(state.account)}</span><br/>当前链：<span class="mono">${escapeHtml(state.chainIdHex)}</span>`,
+          t("wallet.connected", {
+            wallet: escapeHtml(state.walletLabel),
+            account: escapeHtml(state.account),
+            chainId: escapeHtml(state.chainIdHex),
+          }),
           "success"
         );
         setWalletButton();
@@ -1306,7 +1640,7 @@
         const providerObject = getWalletProvider();
 
         if (!providerObject) {
-          throw new Error("未检测到可用 EVM 钱包，请先安装钱包扩展。");
+          throw new Error(t("errors.noWallet"));
         }
 
         let currentChainId = await providerObject.request({ method: "eth_chainId" });
@@ -1361,12 +1695,12 @@
         });
 
         if (!response.ok) {
-          throw new Error(`BTC RPC 请求失败: HTTP ${response.status}`);
+          throw new Error(t("errors.btcRpcHttp", { status: response.status }));
         }
 
         const payload = await response.json();
         if (payload.error) {
-          throw new Error(payload.error.message || "BTC RPC 返回错误");
+          throw new Error(payload.error.message || t("errors.btcRpcError"));
         }
 
         return payload.result;
@@ -1375,7 +1709,7 @@
       async function fetchJson(url) {
         const response = await fetch(url);
         if (!response.ok) {
-          throw new Error(`请求失败: ${url} (${response.status})`);
+          throw new Error(t("errors.requestFailed", { url, status: response.status }));
         }
         return response.json();
       }
@@ -1383,7 +1717,7 @@
       async function fetchText(url) {
         const response = await fetch(url);
         if (!response.ok) {
-          throw new Error(`请求失败: ${url} (${response.status})`);
+          throw new Error(t("errors.requestFailed", { url, status: response.status }));
         }
         return response.text();
       }
@@ -1456,7 +1790,7 @@
         const proofType = getSelectedProofType();
 
         if (!ethers.isAddress(orderAddress)) {
-          throw new Error("请输入正确的订单合约地址。");
+          throw new Error(t("errors.invalidOrderAddress"));
         }
 
         if (proofType === "renewal") {
@@ -1467,7 +1801,7 @@
         }
 
         if (!/^[0-9a-f]{64}$/.test(btcTxid)) {
-          throw new Error("请输入正确的 BTC 交易哈希。");
+          throw new Error(t("errors.invalidBtcTxid"));
         }
 
         return {
@@ -1498,7 +1832,7 @@
       function hexToBytes(hex) {
         const clean = hex.replace(/^0x/i, "").toLowerCase();
         if (clean.length % 2 !== 0) {
-          throw new Error(`非法十六进制长度: ${hex}`);
+          throw new Error(t("errors.invalidHexLength", { hex }));
         }
 
         const bytes = new Uint8Array(clean.length / 2);
@@ -1530,7 +1864,7 @@
         const txIndex = normalizedTxIds.indexOf(target);
 
         if (txIndex < 0) {
-          throw new Error("目标 BTC 交易不在区块交易列表中，无法生成 merkle proof。");
+          throw new Error(t("errors.txNotInBlock"));
         }
 
         let level = normalizedTxIds.slice();
@@ -1574,28 +1908,31 @@
       }
 
       async function buildProof(txid) {
-        setStatus("正在查询 BTC 交易信息...", "warning");
+        setStatus(t("status.queryingBtc"), "warning");
         const tx = await fetchBtcTransaction(txid);
 
         if (!tx.hex) {
-          throw new Error("没有拿到 BTC raw transaction hex。");
+          throw new Error(t("errors.noRawTx"));
         }
 
         if (!tx.blockHash) {
-          throw new Error("BTC 交易还没有被区块确认，暂时不能提交 proof。");
+          throw new Error(t("errors.txUnconfirmed"));
         }
 
         if ((tx.confirmations || 0) < MIN_CONFIRMATIONS) {
           throw new Error(
-            `BTC 交易确认数不足，当前 ${tx.confirmations || 0}，至少需要 ${MIN_CONFIRMATIONS} 个确认。`
+            t("errors.insufficientConfirmations", {
+              current: tx.confirmations || 0,
+              required: MIN_CONFIRMATIONS,
+            })
           );
         }
 
-        setStatus("正在生成 merkle proof...", "warning");
+        setStatus(t("status.generatingProof"), "warning");
         const blockData = await fetchBlockData(tx.blockHash);
         const resolvedBlockHeight = Number(tx.blockHeight || blockData.height || 0);
         if (!resolvedBlockHeight) {
-          throw new Error("无法获取 BTC 区块高度。");
+          throw new Error(t("errors.noBlockHeight"));
         }
         const merkle = await generateMerkleProof(blockData.txIds, tx.txid);
 
@@ -1626,7 +1963,7 @@
             await connectWallet();
           }
 
-          setStatus("正在切换 Metamask 网络...", "warning");
+          setStatus(t("status.switchingNetwork"), "warning");
           await ensureSelectedNetwork();
 
           const providerObject = getWalletProvider();
@@ -1635,14 +1972,18 @@
           state.account = await state.signer.getAddress();
           state.chainIdHex = await providerObject.request({ method: "eth_chainId" });
           setWalletStatus(
-            `已连接钱包：<span class="mono">${escapeHtml(state.walletLabel || "Wallet")}</span><br/>账户：<span class="mono">${escapeHtml(state.account)}</span><br/>当前链：<span class="mono">${escapeHtml(state.chainIdHex)}</span>`,
+            t("wallet.connected", {
+              wallet: escapeHtml(state.walletLabel || t("wallet.defaultName")),
+              account: escapeHtml(state.account),
+              chainId: escapeHtml(state.chainIdHex),
+            }),
             "success"
           );
           setWalletButton();
 
           let proof;
           if (proofType === "renewal") {
-            setStatus("未提供 BTC 哈希，正在直接提交延期证明...", "warning");
+            setStatus(t("status.renewalDirect"), "warning");
             proof = buildEmptyRenewalProof();
           } else {
             proof = await buildProof(btcTxid);
@@ -1653,32 +1994,32 @@
               ? `
             <div class="result-list">
               <div class="result-item">
-                <div class="key">BTC Tx</div>
+                <div class="key">${t("result.btcTx")}</div>
                 <div class="mono">${escapeHtml(btcTxid)}</div>
               </div>
               <div class="result-item">
-                <div class="key">Block Height</div>
+                <div class="key">${t("result.blockHeight")}</div>
                 <div>${escapeHtml(proof.blockHeight)}</div>
               </div>
               <div class="result-item">
-                <div class="key">Confirmations</div>
+                <div class="key">${t("result.confirmations")}</div>
                 <div>${escapeHtml(proof.confirmations)}</div>
               </div>
               <div class="result-item">
-                <div class="key">Proof</div>
-                <div>${escapeHtml(proof.merkleProof.proof.length)} nodes</div>
+                <div class="key">${t("result.proof")}</div>
+                <div>${escapeHtml(t("result.proofNodes", { count: proof.merkleProof.proof.length }))}</div>
               </div>
             </div>
           `
               : `
             <div class="result-list">
               <div class="result-item">
-                <div class="key">BTC Tx</div>
-                <div>未提供</div>
+                <div class="key">${t("result.btcTx")}</div>
+                <div>${t("result.notProvided")}</div>
               </div>
               <div class="result-item">
-                <div class="key">Proof</div>
-                <div>空 proof</div>
+                <div class="key">${t("result.proof")}</div>
+                <div>${t("result.emptyProof")}</div>
               </div>
             </div>
           `
@@ -1686,7 +2027,7 @@
 
           let txResponse;
           if (proofType === "pledge") {
-            setStatus("正在提交质押证明...", "warning");
+            setStatus(t("status.submittingPledge"), "warning");
             const orderContract = new ethers.Contract(orderAddress, ORDER_ABI, state.signer);
             txResponse = await orderContract.submitToLenderTransferProof(
               proof.txRawData,
@@ -1695,7 +2036,7 @@
               0
             );
           } else if (proofType === "unlock") {
-            setStatus("正在提交解锁证明...", "warning");
+            setStatus(t("status.submittingUnlock"), "warning");
             const issuerContract = new ethers.Contract(network.issuer, ISSUER_ABI, state.signer);
             txResponse = await issuerContract.submitRegularUnlockTransferProof(
               orderAddress,
@@ -1704,7 +2045,10 @@
               proof.merkleProof
             );
           } else {
-            setStatus(proofType === "renewal" ? "正在提交延期证明..." : "正在提交延期补仓证明...", "warning");
+            setStatus(
+              proofType === "renewal" ? t("status.submittingRenewal") : t("status.submittingRenewalTopup"),
+              "warning"
+            );
             const orderContract = new ethers.Contract(orderAddress, ORDER_ABI, state.signer);
             txResponse = await orderContract.submitRenewalOrderProof(
               proof.txRawData,
@@ -1714,40 +2058,40 @@
           }
 
           setStatus(
-            `已发起链上交易，等待打包确认...<br/>交易哈希：<span class="mono">${escapeHtml(txResponse.hash)}</span>`,
+            t("status.txSubmitted", { hash: escapeHtml(txResponse.hash) }),
             "warning"
           );
 
           const receipt = await txResponse.wait();
           if (!receipt || Number(receipt.status) !== 1) {
-            throw new Error("链上交易执行失败。");
+            throw new Error(t("errors.txFailed"));
           }
 
           setStatus(
-            `已提交完成。<br/>交易哈希：<span class="mono">${escapeHtml(txResponse.hash)}</span>`,
+            t("status.txSuccess", { hash: escapeHtml(txResponse.hash) }),
             "success"
           );
 
           setResult(`
             <div class="result-list">
               <div class="result-item">
-                <div class="key">状态</div>
-                <div>已提交完成</div>
+                <div class="key">${t("result.status")}</div>
+                <div>${t("result.submitted")}</div>
               </div>
               <div class="result-item">
-                <div class="key">类型</div>
-                <div>${proofType === "pledge" ? "质押证明" : proofType === "unlock" ? "解锁证明" : proofType === "renewal" ? "延期证明" : "延期补仓证明"}</div>
+                <div class="key">${t("result.type")}</div>
+                <div>${proofType === "pledge" ? t("resultProofTypes.pledge") : proofType === "unlock" ? t("resultProofTypes.unlock") : proofType === "renewal" ? t("resultProofTypes.renewal") : t("resultProofTypes.renewalTopup")}</div>
               </div>
               <div class="result-item">
-                <div class="key">EVM Tx</div>
+                <div class="key">${t("result.evmTx")}</div>
                 <div class="mono">${escapeHtml(txResponse.hash)}</div>
               </div>
               <div class="result-item">
-                <div class="key">Order</div>
+                <div class="key">${t("result.order")}</div>
                 <div class="mono">${escapeHtml(shortAddress(orderAddress))}</div>
               </div>
               <div class="result-item">
-                <div class="key">BTC Height</div>
+                <div class="key">${t("result.btcHeight")}</div>
                 <div>${escapeHtml(proof.blockHeight)}</div>
               </div>
             </div>
@@ -1755,7 +2099,7 @@
         } catch (error) {
           console.error(error);
           const message = extractErrorMessage(error);
-          setStatus(`提交失败：${escapeHtml(message)}`, "error");
+          setStatus(t("status.submitFailed", { message: escapeHtml(message) }), "error");
         } finally {
           setBusy(false);
         }
@@ -1773,7 +2117,7 @@
             state.signer = null;
             state.account = null;
             state.chainIdHex = null;
-            setWalletStatus("钱包已断开连接。", "warning");
+            setWalletStatus(t("wallet.disconnected"), "warning");
             setWalletButton();
             return;
           }
@@ -1781,7 +2125,11 @@
           state.account = accounts[0];
           state.chainIdHex = await providerObject.request({ method: "eth_chainId" });
           setWalletStatus(
-            `已连接钱包：<span class="mono">${escapeHtml(state.walletLabel || "Wallet")}</span><br/>账户：<span class="mono">${escapeHtml(state.account)}</span><br/>当前链：<span class="mono">${escapeHtml(state.chainIdHex)}</span>`,
+            t("wallet.connected", {
+              wallet: escapeHtml(state.walletLabel || t("wallet.defaultName")),
+              account: escapeHtml(state.account),
+              chainId: escapeHtml(state.chainIdHex),
+            }),
             "success"
           );
           setWalletButton();
@@ -1791,7 +2139,11 @@
           state.chainIdHex = chainId;
           if (state.account) {
             setWalletStatus(
-              `已连接钱包：<span class="mono">${escapeHtml(state.walletLabel || "Wallet")}</span><br/>账户：<span class="mono">${escapeHtml(state.account)}</span><br/>当前链：<span class="mono">${escapeHtml(chainId)}</span>`,
+              t("wallet.connected", {
+                wallet: escapeHtml(state.walletLabel || t("wallet.defaultName")),
+                account: escapeHtml(state.account),
+                chainId: escapeHtml(chainId),
+              }),
               "success"
             );
           }
@@ -1804,17 +2156,17 @@
           const selectedWallet = state.discoveredWallets.find((wallet) => wallet.key === walletKey);
           if (selectedWallet) {
             state.walletProvider = selectedWallet.provider;
-            state.walletLabel = selectedWallet.info?.name || "Wallet";
+            state.walletLabel = selectedWallet.info?.name || t("wallet.defaultName");
           }
           closeWalletModal();
-          setStatus("正在连接钱包...", "warning");
+          setStatus(t("wallet.connecting"), "warning");
           await connectWallet();
           attachWalletListeners();
-          setStatus("钱包已连接。", "success");
+          setStatus(t("wallet.connectedShort"), "success");
         } catch (error) {
           console.error(error);
-          const message = extractErrorMessage(error, "连接钱包失败");
-          setStatus(`连接钱包失败：${escapeHtml(message)}`, "error");
+          const message = extractErrorMessage(error, t("errors.unknown"));
+          setStatus(t("wallet.connectFailed", { message: escapeHtml(message) }), "error");
         } finally {
           setBusy(false);
         }
@@ -1832,7 +2184,7 @@
             ? "MetaMask"
             : window.ethereum.isCoinbaseWallet
               ? "Coinbase Wallet"
-              : "Injected Wallet";
+              : t("wallet.injectedWallet");
           await handleWalletSelect();
           return;
         }
@@ -1847,17 +2199,24 @@
       }
 
       function init() {
+        renderStaticTexts();
         updateNetworkInfo();
         updateProofTypeHint();
         setupWalletDiscovery();
         setWalletButton();
+        setWalletStatus(t("wallet.notConnected"), "warning");
+        setStatus(t("status.waitingInput"));
+        setResult(t("status.noResult"));
 
         elements.network.addEventListener("change", () => {
           updateNetworkInfo();
-          setStatus("网络已切换。");
+          setStatus(t("status.networkSwitched"));
         });
 
         elements.proofType.addEventListener("change", updateProofTypeHint);
+        elements.languageToggleButton.addEventListener("click", () => {
+          setLocale(state.locale === "zh" ? "en" : "zh");
+        });
         elements.walletConnectButton.addEventListener("click", handleConnectClick);
         elements.walletModalClose.addEventListener("click", closeWalletModal);
         elements.walletList.addEventListener("click", async (event) => {
