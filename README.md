@@ -10,6 +10,7 @@
 - 解锁证明：`submitRegularUnlockTransferProof`
 - 延期证明：`submitRenewalOrderProof`
 - 延期补仓证明：`submitRenewalOrderProof`
+- 余额还款：`confirmRepaymentFromBalance`
 
 页面会自动：
 
@@ -108,12 +109,14 @@ npm run preview
    - 解锁证明
    - 延期证明
    - 延期补仓证明
+   - 确认余额还款
 4. 点击右上角 `Connect`
 5. 选择一个可用的 EVM 钱包
 6. 输入：
    - `Order ID / 订单合约地址`
    - `BTC 交易哈希`（质押证明、解锁证明、延期补仓证明时需要）
-7. 点击“生成 proof 并提交”
+   - `借款人 BTC 地址`（确认余额还款时需要）
+7. 点击提交按钮（证明类为“生成 proof 并提交”，还款类为“确认还款”）
 8. 等待交易打包完成
 
 ## 备注
@@ -124,6 +127,7 @@ npm run preview
 - 延期证明调用订单合约
 - 延期证明不显示 `BTC 交易哈希` 输入框，会直接提交空 proof
 - 延期补仓证明调用订单合约，并使用 BTC 哈希生成 proof
+- 确认余额还款调用订单合约 `confirmRepaymentFromBalance(borrowerBtcAddress)`，无需 BTC proof
 - 交易 gas fee 由当前连接的钱包支付
 
 ## 常见问题
