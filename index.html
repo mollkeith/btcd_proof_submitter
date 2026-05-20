@@ -911,6 +911,7 @@
                       <option id="proof-type-renewal" value="renewal">提交延期证明</option>
                       <option id="proof-type-renewal-topup" value="renewal-topup">提交延期补仓证明</option>
                       <option id="proof-type-repayment" value="repayment">确认余额还款</option>
+                      <option id="proof-type-timeout-repay" value="timeout-repay">开启超时帮还</option>
                     </select>
                   </div>
                 </div>
@@ -927,6 +928,14 @@
                     placeholder="0x..."
                     autocomplete="off"
                   />
+                </div>
+
+                <div class="field" id="timeout-repay-row" hidden>
+                  <label id="timeout-repay-enabled-label" for="timeout-repay-enabled">帮还开关</label>
+                  <select id="timeout-repay-enabled" name="timeout-repay-enabled">
+                    <option value="true" id="timeout-repay-enabled-on">开启（允许他人帮还）</option>
+                    <option value="false" id="timeout-repay-enabled-off">关闭</option>
+                  </select>
                 </div>
 
                 <div class="field" id="borrower-btc-row" hidden>
@@ -1087,6 +1096,7 @@
         "function submitToLenderTransferProof(bytes rawData, uint32 blockHeight, (bytes32[] proof, bytes32 root, bytes32 leaf, bool[] flags) merkleProof, uint32 toLenderTxIndex) external",
         "function submitRenewalOrderProof(bytes rawData, uint32 blockHeight, (bytes32[] proof, bytes32 root, bytes32 leaf, bool[] flags) merkleProof) external",
         "function confirmRepaymentFromBalance(string borrowerBtcAddress) external",
+        "function setTimeoutRepayEnabled(bool enabled) external",
       ];
 
       const ISSUER_ABI = [
@@ -1123,6 +1133,11 @@
             borrowerBtcLabel: "借款人 BTC 地址",
             borrowerBtcPlaceholder: "bc1...",
             submitRepayment: "确认还款",
+            footerTimeoutRepay: "调用 setTimeoutRepayEnabled，设置是否允许他人超时帮还。",
+            timeoutRepayEnabledLabel: "帮还开关",
+            timeoutRepayEnabledOn: "开启（允许他人帮还）",
+            timeoutRepayEnabledOff: "关闭",
+            submitTimeoutRepay: "提交设置",
           },
           proofTypes: {
             pledge: "提交质押证明",
@@ -1130,6 +1145,7 @@
             renewal: "提交延期证明",
             renewalTopup: "提交延期补仓证明",
             repayment: "确认余额还款",
+            timeoutRepay: "开启超时帮还",
           },
           resultProofTypes: {
             pledge: "质押证明",
@@ -1137,6 +1153,7 @@
             renewal: "延期证明",
             renewalTopup: "延期补仓证明",
             repayment: "余额还款",
+            timeoutRepay: "超时帮还设置",
           },
           cards: {
             network: "当前网络",
@@ -1172,6 +1189,7 @@
             submittingRenewal: "正在提交延期证明...",
             submittingRenewalTopup: "正在提交延期补仓证明...",
             submittingRepayment: "正在确认余额还款...",
+            submittingTimeoutRepay: "正在设置超时帮还...",
             txSubmitted: "已发起链上交易，等待打包确认...<br/>交易哈希：<span class=\"mono\">{hash}</span>",
             txSuccess: "已提交完成。<br/>交易哈希：<span class=\"mono\">{hash}</span>",
             submitFailed: "提交失败：{message}",
@@ -1185,6 +1203,9 @@
             btcHeight: "BTC Height",
             btcTx: "BTC Tx",
             borrowerBtc: "借款人 BTC 地址",
+            timeoutRepayEnabled: "帮还开关",
+            enabledOn: "开启",
+            enabledOff: "关闭",
             blockHeight: "Block Height",
             confirmations: "Confirmations",
             proof: "Proof",
@@ -1238,6 +1259,11 @@
             borrowerBtcLabel: "Borrower BTC address",
             borrowerBtcPlaceholder: "bc1...",
             submitRepayment: "Confirm Repayment",
+            footerTimeoutRepay: "Calls setTimeoutRepayEnabled to allow or disallow third-party timeout repayment.",
+            timeoutRepayEnabledLabel: "Timeout repay switch",
+            timeoutRepayEnabledOn: "Enable (allow third-party repayment)",
+            timeoutRepayEnabledOff: "Disable",
+            submitTimeoutRepay: "Apply Setting",
           },
           proofTypes: {
             pledge: "Submit Pledge Proof",
@@ -1245,6 +1271,7 @@
             renewal: "Submit Renewal Proof",
             renewalTopup: "Submit Renewal Top-up Proof",
             repayment: "Confirm Repayment from Balance",
+            timeoutRepay: "Enable Timeout Repayment",
           },
           resultProofTypes: {
             pledge: "Pledge Proof",
@@ -1252,6 +1279,7 @@
             renewal: "Renewal Proof",
             renewalTopup: "Renewal Top-up Proof",
             repayment: "Balance Repayment",
+            timeoutRepay: "Timeout Repay Setting",
           },
           cards: {
             network: "Current Network",
@@ -1287,6 +1315,7 @@
             submittingRenewal: "Submitting renewal proof...",
             submittingRenewalTopup: "Submitting renewal top-up proof...",
             submittingRepayment: "Confirming repayment from balance...",
+            submittingTimeoutRepay: "Applying timeout repay setting...",
             txSubmitted: "Transaction sent, waiting for confirmation...<br/>Tx hash: <span class=\"mono\">{hash}</span>",
             txSuccess: "Submitted successfully.<br/>Tx hash: <span class=\"mono\">{hash}</span>",
             submitFailed: "Submission failed: {message}",
@@ -1300,6 +1329,9 @@
             btcHeight: "BTC Height",
             btcTx: "BTC Tx",
             borrowerBtc: "Borrower BTC address",
+            timeoutRepayEnabled: "Timeout repay switch",
+            enabledOn: "Enabled",
+            enabledOff: "Disabled",
             blockHeight: "Block Height",
             confirmations: "Confirmations",
             proof: "Proof",
@@ -1363,9 +1395,15 @@
         proofTypeRenewal: document.getElementById("proof-type-renewal"),
         proofTypeRenewalTopup: document.getElementById("proof-type-renewal-topup"),
         proofTypeRepayment: document.getElementById("proof-type-repayment"),
+        proofTypeTimeoutRepay: document.getElementById("proof-type-timeout-repay"),
         paramsTitle: document.getElementById("params-title"),
         orderAddressLabel: document.getElementById("order-address-label"),
         orderAddress: document.getElementById("order-address"),
+        timeoutRepayRow: document.getElementById("timeout-repay-row"),
+        timeoutRepayEnabledLabel: document.getElementById("timeout-repay-enabled-label"),
+        timeoutRepayEnabled: document.getElementById("timeout-repay-enabled"),
+        timeoutRepayEnabledOn: document.getElementById("timeout-repay-enabled-on"),
+        timeoutRepayEnabledOff: document.getElementById("timeout-repay-enabled-off"),
         borrowerBtcRow: document.getElementById("borrower-btc-row"),
         borrowerBtcLabel: document.getElementById("borrower-btc-label"),
         borrowerBtcAddress: document.getElementById("borrower-btc-address"),
@@ -1462,8 +1500,12 @@
         elements.proofTypeRenewal.textContent = t("proofTypes.renewal");
         elements.proofTypeRenewalTopup.textContent = t("proofTypes.renewalTopup");
         elements.proofTypeRepayment.textContent = t("proofTypes.repayment");
+        elements.proofTypeTimeoutRepay.textContent = t("proofTypes.timeoutRepay");
         elements.paramsTitle.textContent = t("form.paramsTitle");
         elements.orderAddressLabel.textContent = t("form.orderAddressLabel");
+        elements.timeoutRepayEnabledLabel.textContent = t("form.timeoutRepayEnabledLabel");
+        elements.timeoutRepayEnabledOn.textContent = t("form.timeoutRepayEnabledOn");
+        elements.timeoutRepayEnabledOff.textContent = t("form.timeoutRepayEnabledOff");
         elements.borrowerBtcLabel.textContent = t("form.borrowerBtcLabel");
         elements.borrowerBtcAddress.placeholder = t("form.borrowerBtcPlaceholder");
         elements.btcTxidLabel.textContent = t("form.btcTxidLabel");
@@ -1494,12 +1536,18 @@
         elements.resultBox.innerHTML = html;
       }
 
+      function getSubmitButtonIdleText() {
+        const proofType = getSelectedProofType();
+        if (proofType === "repayment") return t("form.submitRepayment");
+        if (proofType === "timeout-repay") return t("form.submitTimeoutRepay");
+        return t("form.submit");
+      }
+
       function updateSubmitButtonText() {
         if (elements.submitProof.disabled) {
           return;
         }
-        elements.submitProof.textContent =
-          getSelectedProofType() === "repayment" ? t("form.submitRepayment") : t("form.submit");
+        elements.submitProof.textContent = getSubmitButtonIdleText();
       }
 
       function getResultProofTypeLabel(proofType) {
@@ -1507,14 +1555,19 @@
         if (proofType === "unlock") return t("resultProofTypes.unlock");
         if (proofType === "renewal") return t("resultProofTypes.renewal");
         if (proofType === "repayment") return t("resultProofTypes.repayment");
+        if (proofType === "timeout-repay") return t("resultProofTypes.timeoutRepay");
         if (proofType === "renewal-topup") return t("resultProofTypes.renewalTopup");
         return proofType;
+      }
+
+      function getTimeoutRepayEnabledLabel(enabled) {
+        return enabled ? t("result.enabledOn") : t("result.enabledOff");
       }
 
       function setBusy(isBusy) {
         elements.submitProof.disabled = isBusy;
         elements.walletConnectButton.disabled = isBusy;
-        elements.submitProof.textContent = isBusy ? t("form.processing") : getSelectedProofType() === "repayment" ? t("form.submitRepayment") : t("form.submit");
+        elements.submitProof.textContent = isBusy ? t("form.processing") : getSubmitButtonIdleText();
       }
 
       function shortAddress(address) {
@@ -1653,6 +1706,7 @@
       function updateProofTypeHint() {
         const proofType = getSelectedProofType();
         elements.borrowerBtcRow.hidden = proofType !== "repayment";
+        elements.timeoutRepayRow.hidden = proofType !== "timeout-repay";
         if (proofType === "pledge" || proofType === "unlock") {
           elements.btcTxidRow.hidden = false;
           elements.formFooterNote.innerHTML = t("form.footerMinConfirmations");
@@ -1662,6 +1716,9 @@
         } else if (proofType === "repayment") {
           elements.btcTxidRow.hidden = true;
           elements.formFooterNote.innerHTML = t("form.footerRepayment");
+        } else if (proofType === "timeout-repay") {
+          elements.btcTxidRow.hidden = true;
+          elements.formFooterNote.innerHTML = t("form.footerTimeoutRepay");
         } else {
           elements.btcTxidRow.hidden = false;
           elements.formFooterNote.innerHTML = t("form.footerRenewalTopup");
@@ -1855,6 +1912,7 @@
             orderAddress,
             btcTxid: null,
             borrowerBtcAddress: null,
+            timeoutRepayEnabled: null,
           };
         }
 
@@ -1867,6 +1925,16 @@
             orderAddress,
             btcTxid: null,
             borrowerBtcAddress,
+            timeoutRepayEnabled: null,
+          };
+        }
+
+        if (proofType === "timeout-repay") {
+          return {
+            orderAddress,
+            btcTxid: null,
+            borrowerBtcAddress: null,
+            timeoutRepayEnabled: elements.timeoutRepayEnabled.value === "true",
           };
         }
 
@@ -1879,6 +1947,7 @@
           orderAddress,
           btcTxid,
           borrowerBtcAddress: null,
+          timeoutRepayEnabled: null,
         };
       }
 
@@ -2028,7 +2097,7 @@
 
         try {
           const proofType = getSelectedProofType();
-          const { orderAddress, btcTxid, borrowerBtcAddress } = validateInputs();
+          const { orderAddress, btcTxid, borrowerBtcAddress, timeoutRepayEnabled } = validateInputs();
           const network = getSelectedNetwork();
 
           if (!state.signer) {
@@ -2095,6 +2164,53 @@
                 <div class="result-item">
                   <div class="key">${t("result.borrowerBtc")}</div>
                   <div class="mono">${escapeHtml(borrowerBtcAddress)}</div>
+                </div>
+                <div class="result-item">
+                  <div class="key">${t("result.evmTx")}</div>
+                  <div class="mono">${escapeHtml(txResponse.hash)}</div>
+                </div>
+                <div class="result-item">
+                  <div class="key">${t("result.order")}</div>
+                  <div class="mono">${escapeHtml(shortAddress(orderAddress))}</div>
+                </div>
+              </div>
+            `);
+            return;
+          }
+
+          if (proofType === "timeout-repay") {
+            setStatus(t("status.submittingTimeoutRepay"), "warning");
+            const orderContract = new ethers.Contract(orderAddress, ORDER_ABI, state.signer);
+            const txResponse = await orderContract.setTimeoutRepayEnabled(timeoutRepayEnabled);
+
+            setStatus(
+              t("status.txSubmitted", { hash: escapeHtml(txResponse.hash) }),
+              "warning"
+            );
+
+            const receipt = await txResponse.wait();
+            if (!receipt || Number(receipt.status) !== 1) {
+              throw new Error(t("errors.txFailed"));
+            }
+
+            setStatus(
+              t("status.txSuccess", { hash: escapeHtml(txResponse.hash) }),
+              "success"
+            );
+
+            setResult(`
+              <div class="result-list">
+                <div class="result-item">
+                  <div class="key">${t("result.status")}</div>
+                  <div>${t("result.submitted")}</div>
+                </div>
+                <div class="result-item">
+                  <div class="key">${t("result.type")}</div>
+                  <div>${getResultProofTypeLabel(proofType)}</div>
+                </div>
+                <div class="result-item">
+                  <div class="key">${t("result.timeoutRepayEnabled")}</div>
+                  <div>${getTimeoutRepayEnabledLabel(timeoutRepayEnabled)}</div>
                 </div>
                 <div class="result-item">
                   <div class="key">${t("result.evmTx")}</div>
