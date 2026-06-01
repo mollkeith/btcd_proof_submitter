@@ -12,6 +12,8 @@
 - 延期补仓证明：`submitRenewalOrderProof`
 - 余额还款：`confirmRepaymentFromBalance`
 - 开启超时帮还：`setTimeoutRepayEnabled`
+- 同意增贷：`executeIncreaseRequest`
+- 取消增贷：`cancelObsidianIncrease`
 
 页面会自动：
 
@@ -112,6 +114,8 @@ npm run preview
    - 延期补仓证明
    - 确认余额还款
    - 开启超时帮还
+   - 同意增贷
+   - 取消增贷
 4. 点击右上角 `Connect`
 5. 选择一个可用的 EVM 钱包
 6. 输入：
@@ -132,6 +136,8 @@ npm run preview
 - 延期补仓证明调用订单合约，并使用 BTC 哈希生成 proof
 - 确认余额还款调用订单合约 `confirmRepaymentFromBalance(borrowerBtcAddress)`，无需 BTC proof
 - 开启超时帮还调用订单合约 `setTimeoutRepayEnabled(true/false)`，用于设置是否允许他人帮还
+- 同意增贷调用订单合约 `executeIncreaseRequest()`，执行增贷请求
+- 取消增贷调用 Issuer 合约 `cancelObsidianIncrease(order)`，取消增贷请求
 - 交易 gas fee 由当前连接的钱包支付
 
 ## 常见问题

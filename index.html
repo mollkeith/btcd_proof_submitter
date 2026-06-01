@@ -912,6 +912,8 @@
                       <option id="proof-type-renewal-topup" value="renewal-topup">提交延期补仓证明</option>
                       <option id="proof-type-repayment" value="repayment">确认余额还款</option>
                       <option id="proof-type-timeout-repay" value="timeout-repay">开启超时帮还</option>
+                      <option id="proof-type-execute-increase" value="execute-increase">同意增贷</option>
+                      <option id="proof-type-cancel-increase" value="cancel-increase">取消增贷</option>
                     </select>
                   </div>
                 </div>
@@ -1097,10 +1099,12 @@
         "function submitRenewalOrderProof(bytes rawData, uint32 blockHeight, (bytes32[] proof, bytes32 root, bytes32 leaf, bool[] flags) merkleProof) external",
         "function confirmRepaymentFromBalance(string borrowerBtcAddress) external",
         "function setTimeoutRepayEnabled(bool enabled) external",
+        "function executeIncreaseRequest() external",
       ];
 
       const ISSUER_ABI = [
         "function submitRegularUnlockTransferProof(address order, bytes txData, uint32 blockHeight, (bytes32[] proof, bytes32 root, bytes32 leaf, bool[] flags) merkleProof) external",
+        "function cancelObsidianIncrease(address order) external",
       ];
 
       const LANG_STORAGE_KEY = "proof_submitter_locale";
@@ -1138,6 +1142,10 @@
             timeoutRepayEnabledOn: "开启（允许他人帮还）",
             timeoutRepayEnabledOff: "关闭",
             submitTimeoutRepay: "提交设置",
+            footerExecuteIncrease: "调用订单合约 executeIncreaseRequest，执行增贷请求。",
+            submitExecuteIncrease: "执行增贷",
+            footerCancelIncrease: "调用 Issuer 合约 cancelObsidianIncrease，取消增贷请求。",
+            submitCancelIncrease: "取消增贷",
           },
           proofTypes: {
             pledge: "提交质押证明",
@@ -1146,6 +1154,8 @@
             renewalTopup: "提交延期补仓证明",
             repayment: "确认余额还款",
             timeoutRepay: "开启超时帮还",
+            executeIncrease: "同意增贷",
+            cancelIncrease: "取消增贷",
           },
           resultProofTypes: {
             pledge: "质押证明",
@@ -1154,6 +1164,8 @@
             renewalTopup: "延期补仓证明",
             repayment: "余额还款",
             timeoutRepay: "超时帮还设置",
+            executeIncrease: "执行增贷",
+            cancelIncrease: "取消增贷",
           },
           cards: {
             network: "当前网络",
@@ -1190,6 +1202,8 @@
             submittingRenewalTopup: "正在提交延期补仓证明...",
             submittingRepayment: "正在确认余额还款...",
             submittingTimeoutRepay: "正在设置超时帮还...",
+            submittingExecuteIncrease: "正在执行增贷...",
+            submittingCancelIncrease: "正在取消增贷...",
             txSubmitted: "已发起链上交易，等待打包确认...<br/>交易哈希：<span class=\"mono\">{hash}</span>",
             txSuccess: "已提交完成。<br/>交易哈希：<span class=\"mono\">{hash}</span>",
             submitFailed: "提交失败：{message}",
@@ -1264,6 +1278,10 @@
             timeoutRepayEnabledOn: "Enable (allow third-party repayment)",
             timeoutRepayEnabledOff: "Disable",
             submitTimeoutRepay: "Apply Setting",
+            footerExecuteIncrease: "Calls order contract executeIncreaseRequest to execute the increase request.",
+            submitExecuteIncrease: "Execute Increase",
+            footerCancelIncrease: "Calls Issuer contract cancelObsidianIncrease to cancel the increase request.",
+            submitCancelIncrease: "Cancel Increase",
           },
           proofTypes: {
             pledge: "Submit Pledge Proof",
@@ -1272,6 +1290,8 @@
             renewalTopup: "Submit Renewal Top-up Proof",
             repayment: "Confirm Repayment from Balance",
             timeoutRepay: "Enable Timeout Repayment",
+            executeIncrease: "Execute Increase Request",
+            cancelIncrease: "Cancel Increase Request",
           },
           resultProofTypes: {
             pledge: "Pledge Proof",
@@ -1280,6 +1300,8 @@
             renewalTopup: "Renewal Top-up Proof",
             repayment: "Balance Repayment",
             timeoutRepay: "Timeout Repay Setting",
+            executeIncrease: "Execute Increase",
+            cancelIncrease: "Cancel Increase",
           },
           cards: {
             network: "Current Network",
@@ -1316,6 +1338,8 @@
             submittingRenewalTopup: "Submitting renewal top-up proof...",
             submittingRepayment: "Confirming repayment from balance...",
             submittingTimeoutRepay: "Applying timeout repay setting...",
+            submittingExecuteIncrease: "Executing increase request...",
+            submittingCancelIncrease: "Cancelling increase request...",
             txSubmitted: "Transaction sent, waiting for confirmation...<br/>Tx hash: <span class=\"mono\">{hash}</span>",
             txSuccess: "Submitted successfully.<br/>Tx hash: <span class=\"mono\">{hash}</span>",
             submitFailed: "Submission failed: {message}",
@@ -1396,6 +1420,8 @@
         proofTypeRenewalTopup: document.getElementById("proof-type-renewal-topup"),
         proofTypeRepayment: document.getElementById("proof-type-repayment"),
         proofTypeTimeoutRepay: document.getElementById("proof-type-timeout-repay"),
+        proofTypeExecuteIncrease: document.getElementById("proof-type-execute-increase"),
+        proofTypeCancelIncrease: document.getElementById("proof-type-cancel-increase"),
         paramsTitle: document.getElementById("params-title"),
         orderAddressLabel: document.getElementById("order-address-label"),
         orderAddress: document.getElementById("order-address"),
@@ -1501,6 +1527,8 @@
         elements.proofTypeRenewalTopup.textContent = t("proofTypes.renewalTopup");
         elements.proofTypeRepayment.textContent = t("proofTypes.repayment");
         elements.proofTypeTimeoutRepay.textContent = t("proofTypes.timeoutRepay");
+        elements.proofTypeExecuteIncrease.textContent = t("proofTypes.executeIncrease");
+        elements.proofTypeCancelIncrease.textContent = t("proofTypes.cancelIncrease");
         elements.paramsTitle.textContent = t("form.paramsTitle");
         elements.orderAddressLabel.textContent = t("form.orderAddressLabel");
         elements.timeoutRepayEnabledLabel.textContent = t("form.timeoutRepayEnabledLabel");
@@ -1540,6 +1568,8 @@
         const proofType = getSelectedProofType();
         if (proofType === "repayment") return t("form.submitRepayment");
         if (proofType === "timeout-repay") return t("form.submitTimeoutRepay");
+        if (proofType === "execute-increase") return t("form.submitExecuteIncrease");
+        if (proofType === "cancel-increase") return t("form.submitCancelIncrease");
         return t("form.submit");
       }
 
@@ -1556,6 +1586,8 @@
         if (proofType === "renewal") return t("resultProofTypes.renewal");
         if (proofType === "repayment") return t("resultProofTypes.repayment");
         if (proofType === "timeout-repay") return t("resultProofTypes.timeoutRepay");
+        if (proofType === "execute-increase") return t("resultProofTypes.executeIncrease");
+        if (proofType === "cancel-increase") return t("resultProofTypes.cancelIncrease");
         if (proofType === "renewal-topup") return t("resultProofTypes.renewalTopup");
         return proofType;
       }
@@ -1719,6 +1751,12 @@
         } else if (proofType === "timeout-repay") {
           elements.btcTxidRow.hidden = true;
           elements.formFooterNote.innerHTML = t("form.footerTimeoutRepay");
+        } else if (proofType === "execute-increase") {
+          elements.btcTxidRow.hidden = true;
+          elements.formFooterNote.innerHTML = t("form.footerExecuteIncrease");
+        } else if (proofType === "cancel-increase") {
+          elements.btcTxidRow.hidden = true;
+          elements.formFooterNote.innerHTML = t("form.footerCancelIncrease");
         } else {
           elements.btcTxidRow.hidden = false;
           elements.formFooterNote.innerHTML = t("form.footerRenewalTopup");
@@ -1935,6 +1973,15 @@
             btcTxid: null,
             borrowerBtcAddress: null,
             timeoutRepayEnabled: elements.timeoutRepayEnabled.value === "true",
+          };
+        }
+
+        if (proofType === "execute-increase" || proofType === "cancel-increase") {
+          return {
+            orderAddress,
+            btcTxid: null,
+            borrowerBtcAddress: null,
+            timeoutRepayEnabled: null,
           };
         }
 
@@ -2211,6 +2258,92 @@
                 <div class="result-item">
                   <div class="key">${t("result.timeoutRepayEnabled")}</div>
                   <div>${getTimeoutRepayEnabledLabel(timeoutRepayEnabled)}</div>
+                </div>
+                <div class="result-item">
+                  <div class="key">${t("result.evmTx")}</div>
+                  <div class="mono">${escapeHtml(txResponse.hash)}</div>
+                </div>
+                <div class="result-item">
+                  <div class="key">${t("result.order")}</div>
+                  <div class="mono">${escapeHtml(shortAddress(orderAddress))}</div>
+                </div>
+              </div>
+            `);
+            return;
+          }
+
+          if (proofType === "execute-increase") {
+            setStatus(t("status.submittingExecuteIncrease"), "warning");
+            const orderContract = new ethers.Contract(orderAddress, ORDER_ABI, state.signer);
+            const txResponse = await orderContract.executeIncreaseRequest();
+
+            setStatus(
+              t("status.txSubmitted", { hash: escapeHtml(txResponse.hash) }),
+              "warning"
+            );
+
+            const receipt = await txResponse.wait();
+            if (!receipt || Number(receipt.status) !== 1) {
+              throw new Error(t("errors.txFailed"));
+            }
+
+            setStatus(
+              t("status.txSuccess", { hash: escapeHtml(txResponse.hash) }),
+              "success"
+            );
+
+            setResult(`
+              <div class="result-list">
+                <div class="result-item">
+                  <div class="key">${t("result.status")}</div>
+                  <div>${t("result.submitted")}</div>
+                </div>
+                <div class="result-item">
+                  <div class="key">${t("result.type")}</div>
+                  <div>${getResultProofTypeLabel(proofType)}</div>
+                </div>
+                <div class="result-item">
+                  <div class="key">${t("result.evmTx")}</div>
+                  <div class="mono">${escapeHtml(txResponse.hash)}</div>
+                </div>
+                <div class="result-item">
+                  <div class="key">${t("result.order")}</div>
+                  <div class="mono">${escapeHtml(shortAddress(orderAddress))}</div>
+                </div>
+              </div>
+            `);
+            return;
+          }
+
+          if (proofType === "cancel-increase") {
+            setStatus(t("status.submittingCancelIncrease"), "warning");
+            const issuerContract = new ethers.Contract(network.issuer, ISSUER_ABI, state.signer);
+            const txResponse = await issuerContract.cancelObsidianIncrease(orderAddress);
+
+            setStatus(
+              t("status.txSubmitted", { hash: escapeHtml(txResponse.hash) }),
+              "warning"
+            );
+
+            const receipt = await txResponse.wait();
+            if (!receipt || Number(receipt.status) !== 1) {
+              throw new Error(t("errors.txFailed"));
+            }
+
+            setStatus(
+              t("status.txSuccess", { hash: escapeHtml(txResponse.hash) }),
+              "success"
+            );
+
+            setResult(`
+              <div class="result-list">
+                <div class="result-item">
+                  <div class="key">${t("result.status")}</div>
+                  <div>${t("result.submitted")}</div>
+                </div>
+                <div class="result-item">
+                  <div class="key">${t("result.type")}</div>
+                  <div>${getResultProofTypeLabel(proofType)}</div>
                 </div>
                 <div class="result-item">
                   <div class="key">${t("result.evmTx")}</div>
