@@ -1107,6 +1107,102 @@
         "function cancelObsidianIncrease(address order) external",
       ];
 
+      // Custom error definitions across the contracts the proof flow can touch (ObsidianOrder,
+      // Issuer, LoanContract, LoanTools, TaprootTools, ObsidianBtcAddressBinder, Order). Needed
+      // so a revert is shown as its error NAME instead of a raw 4-byte selector hash.
+      // Regenerate from the contract ABIs after upgrades.
+      const ERROR_ABI = [
+        "error AddressEmptyCode(address target)",
+        "error AddressInsufficientBalance(address account)",
+        "error AlreadyCreated()",
+        "error EmptyBtcAddress()",
+        "error ErrorStatus()",
+        "error ExceedsMaxBorrow()",
+        "error FailedInnerCall()",
+        "error IncreaseWindowClosed()",
+        "error InsufficientRepaymentBalance()",
+        "error InvalidDeadline()",
+        "error InvalidInitialization()",
+        "error InvalidParameters()",
+        "error InvalidUnlockAmount()",
+        "error InvalidVersion()",
+        "error LenderOnly()",
+        "error MathOverflowedMulDiv()",
+        "error NoOpen()",
+        "error NoPermission()",
+        "error NotCloseable()",
+        "error NotInitializing()",
+        "error NotRenewalOperator()",
+        "error OnlyBorrower()",
+        "error OrderClosedAlready()",
+        "error OrderTimedOut()",
+        "error OwnableInvalidOwner(address owner)",
+        "error OwnableUnauthorizedAccount(address account)",
+        "error ReentrancyGuardReentrantCall()",
+        "error RenewalWindowNotOpen()",
+        "error SafeERC20FailedOperation(address token)",
+        "error TimelockOverflow()",
+        "error TimeoutRepayDisabled()",
+        "error ArbitratorNotActive()",
+        "error ArrayMismatch()",
+        "error DelayOneBlock()",
+        "error EmptyAddress()",
+        "error InsufficientCollateral()",
+        "error InvalidAmount()",
+        "error InvalidMerkleRoot()",
+        "error InvalidStatus()",
+        "error InvalidTaprootKey()",
+        "error InvalidTxId()",
+        "error InvalidUtxo()",
+        "error LoanTooLarge()",
+        "error LoanTooSmall()",
+        "error NoBtcUtils()",
+        "error NoRenewalManager()",
+        "error NoTapRootUnlock()",
+        "error NoToken()",
+        "error NoUnlockTx()",
+        "error NotAuthorizedApp()",
+        "error OnlyOrdersAllowed()",
+        "error VerifyFailed()",
+        "error BindingInUse(uint256 tokenId, address activeOrder)",
+        "error BtcAddressAlreadyBound(bytes32 btcAddressHash)",
+        "error BtcAddressAlreadyUsed(bytes32 btcAddressHash)",
+        "error BtcAddressMismatch(uint256 tokenId, bytes32 expectedHash, bytes32 actualHash)",
+        "error CollateralTxIdAlreadyUsed(bytes32 txId)",
+        "error InvalidCollateralTxId()",
+        "error NotActiveOrder(address caller, uint256 tokenId)",
+        "error NotBinderOwner(address caller)",
+        "error NotConsumerManager(address account)",
+        "error NotTokenOwner(address user, uint256 tokenId)",
+        "error NotValidOrder(address order)",
+        "error TokenAlreadyBound(uint256 tokenId)",
+        "error TokenNotBound(uint256 tokenId)",
+        "error ZeroAddress()",
+        "error AllowanceTooLow()",
+        "error ArbitrationUnavailable()",
+        "error ArbitratorDeadlineNotPassed()",
+        "error ArbitratorOnly()",
+        "error InvalidBtcData()",
+        "error InvalidLender()",
+        "error InvalidPreimage()",
+        "error InvalidProofLeaf()",
+        "error InvalidRepaidExpireWindow()",
+        "error InvalidScriptTimelock()",
+        "error InvalidSignature()",
+        "error InvalidTaprootLeaves()",
+        "error InvalidTimelock()",
+        "error InvalidV2TaprootLeaves()",
+        "error NoSubmitPledgeProof()",
+        "error NotReady()",
+        "error OnlyV2()",
+      ];
+
+      // Let the contract instances decode their own custom errors (ethers v6 then populates
+      // error.revert on a revert), and build a standalone interface for explicit decoding.
+      ORDER_ABI.push(...ERROR_ABI);
+      ISSUER_ABI.push(...ERROR_ABI);
+      const ERROR_INTERFACE = new ethers.Interface(ERROR_ABI);
+
       const LANG_STORAGE_KEY = "proof_submitter_locale";
 
       const I18N = {
@@ -1616,10 +1712,74 @@
           .replaceAll("'", "&#39;");
       }
 
+      const ERROR_STRING_SELECTOR = "0x08c379a0"; // Error(string) -> require(false, "msg") / revert("msg")
+      const PANIC_SELECTOR = "0x4e487b71";        // Panic(uint256)
+
+      // Revert data can be nested under different keys depending on wallet / provider / ethers
+      // code path. Walk the error object instead of guessing one fixed location.
+      function findRevertData(value, depth = 0) {
+        if (value == null || depth > 8) return null;
+        if (typeof value === "string") {
+          const trimmed = value.trim();
+          if (/^0x[0-9a-fA-F]{8,}$/.test(trimmed)) return trimmed;
+          if (trimmed.startsWith("{")) {
+            try { return findRevertData(JSON.parse(trimmed), depth + 1); } catch { return null; }
+          }
+          return null;
+        }
+        if (typeof value !== "object") return null;
+        for (const key of ["data", "error", "originalError", "cause", "info", "payload", "body", "result", "value", "revert"]) {
+          if (key in value) {
+            const found = findRevertData(value[key], depth + 1);
+            if (found) return found;
+          }
+        }
+        return null;
+      }
+
+      // Decode a contract revert into a readable message:
+      //   custom error -> error name (args appended when present, e.g. "BindingInUse(1, 0x..)")
+      //   require/revert string -> the raw string
+      //   panic -> "Panic(<code>)"
+      // Returns null when there is no decodable revert data (e.g. user-rejected actions).
+      function decodeContractError(error) {
+        // ethers v6 may already have decoded a custom error from the contract interface.
+        if (error && error.revert && error.revert.name) {
+          const args = (error.revert.args ?? []).map((a) => (a != null && a.toString ? a.toString() : String(a)));
+          return args.length ? `${error.revert.name}(${args.join(", ")})` : error.revert.name;
+        }
+        const data = findRevertData(error);
+        if (!data || data.length < 10) return null;
+        const selector = data.slice(0, 10).toLowerCase();
+        if (selector === ERROR_STRING_SELECTOR) {
+          try {
+            const [reason] = ethers.AbiCoder.defaultAbiCoder().decode(["string"], "0x" + data.slice(10));
+            return String(reason);
+          } catch { return null; }
+        }
+        if (selector === PANIC_SELECTOR) {
+          try {
+            const [code] = ethers.AbiCoder.defaultAbiCoder().decode(["uint256"], "0x" + data.slice(10));
+            return `Panic(${code.toString()})`;
+          } catch { return null; }
+        }
+        try {
+          const parsed = ERROR_INTERFACE.parseError(data);
+          if (!parsed) return null;
+          const args = (parsed.args ?? []).map((a) => (a != null && a.toString ? a.toString() : String(a)));
+          return args.length ? `${parsed.name}(${args.join(", ")})` : parsed.name;
+        } catch { return null; }
+      }
+
       function extractErrorMessage(error, fallback = t("errors.unknown")) {
         if (!error) {
           return fallback;
         }
+
+        // Prefer a decoded contract revert (custom error name / require string) over the generic
+        // provider message, which is otherwise just "execution reverted" or a raw 4-byte selector.
+        const decoded = decodeContractError(error);
+        if (decoded) return decoded;
 
         const candidates = [
           error.shortMessage,
