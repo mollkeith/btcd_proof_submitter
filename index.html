@@ -4,899 +4,159 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Proof Submitter</title>
-    <style>
-      :root {
-        color-scheme: dark;
-        --bg: #07111f;
-        --bg-secondary: #0b1629;
-        --panel: rgba(9, 18, 33, 0.86);
-        --panel-strong: rgba(10, 20, 38, 0.96);
-        --panel-soft: rgba(15, 23, 42, 0.6);
-        --panel-border: rgba(148, 163, 184, 0.14);
-        --line: rgba(148, 163, 184, 0.1);
-        --text: #e5eefb;
-        --muted: #9db0cd;
-        --subtle: #c7d4ea;
-        --primary: #4f8cff;
-        --primary-hover: #3777f6;
-        --primary-soft: rgba(79, 140, 255, 0.14);
-        --success: #22c55e;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-        --input: rgba(7, 14, 27, 0.92);
-        --shadow: 0 28px 80px rgba(2, 8, 23, 0.42);
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      html {
-        scroll-behavior: smooth;
-      }
-
-      body {
-        margin: 0;
-        min-height: 100vh;
-        font-family:
-          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-          "Segoe UI", sans-serif;
-        color: var(--text);
-        background:
-          radial-gradient(circle at top left, rgba(79, 140, 255, 0.22), transparent 28%),
-          radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 24%),
-          linear-gradient(180deg, #09111f 0%, #07111f 38%, #091523 100%);
-      }
-
-      body::before {
-        content: "";
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-        background-image:
-          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-        background-size: 48px 48px;
-        mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.4), transparent 75%);
-      }
-
-      h1,
-      h2,
-      h3,
-      p {
-        margin: 0;
-      }
-
-      a {
-        color: #9bc4ff;
-      }
-
-      .page {
-        width: min(1180px, calc(100% - 36px));
-        margin: 24px auto 40px;
-      }
-
-      .topbar,
-      .hero,
-      .card,
-      .info-strip {
-        position: relative;
-        overflow: hidden;
-        background: var(--panel);
-        border: 1px solid var(--panel-border);
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(18px);
-      }
-
-      .topbar,
-      .hero,
-      .card {
-        border-radius: 24px;
-      }
-
-      .topbar::after,
-      .hero::after,
-      .card::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background: linear-gradient(
-          135deg,
-          rgba(255, 255, 255, 0.06),
-          transparent 28%,
-          transparent 72%,
-          rgba(79, 140, 255, 0.08)
-        );
-      }
-
-      .topbar {
-        padding: 14px 18px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 18px;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 0;
-        flex: 1 1 auto;
-      }
-
-      .brand-mark {
-        width: 42px;
-        height: 42px;
-        border-radius: 14px;
-        display: grid;
-        place-items: center;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        color: white;
-        background: linear-gradient(135deg, #3b82f6, #22c55e);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
-      }
-
-      .brand-copy {
-        display: grid;
-        gap: 3px;
-        min-width: 0;
-      }
-
-      .brand-title {
-        font-size: 15px;
-        font-weight: 700;
-        overflow-wrap: anywhere;
-      }
-
-      .brand-subtitle {
-        color: var(--muted);
-        font-size: 12px;
-        overflow-wrap: anywhere;
-      }
-
-      .topbar-note {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 12px;
-        border-radius: 999px;
-        background: rgba(148, 163, 184, 0.08);
-        border: 1px solid rgba(148, 163, 184, 0.12);
-        color: var(--subtle);
-        font-size: 13px;
-      }
-
-      .topbar-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-      }
-
-      .lang-toggle-btn {
-        min-width: 74px;
-        min-height: 44px;
-        padding-inline: 14px;
-        border-radius: 999px;
-        font-weight: 700;
-      }
-
-      .wallet-connect-btn {
-        min-width: 116px;
-        min-height: 44px;
-        padding: 10px 16px;
-        border-radius: 999px;
-        background: linear-gradient(135deg, var(--primary), #2967e8);
-        color: #fff;
-        font-weight: 700;
-        box-shadow: 0 10px 24px rgba(59, 130, 246, 0.24);
-      }
-
-      .wallet-connect-btn.connected {
-        background: rgba(34, 197, 94, 0.14);
-        color: #c8f7d8;
-        border: 1px solid rgba(34, 197, 94, 0.25);
-        box-shadow: none;
-      }
-
-      .hero {
-        padding: 34px;
-        margin-bottom: 18px;
-      }
-
-      .hero-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
-        gap: 28px;
-        align-items: start;
-      }
-
-      h1 {
-        font-size: clamp(34px, 5vw, 52px);
-        line-height: 1.04;
-        letter-spacing: -0.03em;
-      }
-
-      .hero-copy p {
-        margin-top: 16px;
-        max-width: 760px;
-        color: var(--muted);
-        font-size: 15px;
-        line-height: 1.75;
-      }
-
-      .hero-meta {
-        display: grid;
-        gap: 12px;
-      }
-
-      .hero-stat {
-        padding: 16px 18px;
-        border-radius: 18px;
-        background: rgba(7, 14, 27, 0.5);
-        border: 1px solid rgba(148, 163, 184, 0.12);
-      }
-
-      .hero-stat .label {
-        color: var(--muted);
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-      }
-
-      .hero-stat .value {
-        margin-top: 8px;
-        font-size: 15px;
-        line-height: 1.6;
-      }
-
-      .info-strip {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
-        margin-bottom: 20px;
-        background: transparent;
-        border: 0;
-        box-shadow: none;
-        backdrop-filter: none;
-      }
-
-      .info-item {
-        padding: 16px 18px;
-        border-radius: 18px;
-        background: rgba(9, 18, 33, 0.72);
-        border: 1px solid rgba(148, 163, 184, 0.12);
-        box-shadow: 0 12px 40px rgba(2, 8, 23, 0.22);
-      }
-
-      .info-item strong {
-        display: block;
-        font-size: 13px;
-        color: var(--subtle);
-        margin-bottom: 8px;
-      }
-
-      .info-item span {
-        color: var(--muted);
-        line-height: 1.6;
-        font-size: 13px;
-      }
-
-      .grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.18fr) minmax(330px, 0.82fr);
-        gap: 20px;
-        align-items: start;
-      }
-
-      .card {
-        padding: 24px;
-      }
-
-      .section-head {
-        display: flex;
-        justify-content: space-between;
-        align-items: start;
-        gap: 16px;
-        margin-bottom: 20px;
-      }
-
-      .section-head h2 {
-        font-size: 24px;
-        line-height: 1.15;
-      }
-
-      .section-head p {
-        color: var(--muted);
-        font-size: 14px;
-        line-height: 1.7;
-        margin-top: 8px;
-      }
-
-      .section-tag {
-        display: inline-flex;
-        align-items: center;
-        white-space: nowrap;
-        padding: 8px 12px;
-        border-radius: 999px;
-        background: rgba(34, 197, 94, 0.12);
-        border: 1px solid rgba(34, 197, 94, 0.18);
-        color: #bdf5cf;
-        font-size: 12px;
-        font-weight: 700;
-      }
-
-      .stack {
-        display: grid;
-        gap: 16px;
-      }
-
-      .sidebar-stack {
-        gap: 12px;
-      }
-
-      .form-sections {
-        display: grid;
-        gap: 18px;
-      }
-
-      .subcard {
-        position: relative;
-        padding: 18px;
-        border-radius: 20px;
-        border: 1px solid rgba(148, 163, 184, 0.12);
-        background: rgba(8, 15, 28, 0.52);
-      }
-
-      .subcard-title {
-        font-size: 15px;
-        font-weight: 700;
-        color: var(--subtle);
-        margin-bottom: 6px;
-      }
-
-      .subcard-desc {
-        color: var(--muted);
-        font-size: 13px;
-        line-height: 1.6;
-        margin-bottom: 16px;
-      }
-
-      .field {
-        display: grid;
-        gap: 8px;
-      }
-
-      .field-row {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-      }
-
-      .input-with-suffix {
-        position: relative;
-      }
-
-      .input-with-suffix input {
-        padding-right: 72px;
-      }
-
-      .input-suffix {
-        position: absolute;
-        top: 50%;
-        right: 12px;
-        transform: translateY(-50%);
-        padding: 6px 10px;
-        border-radius: 999px;
-        background: rgba(148, 163, 184, 0.1);
-        border: 1px solid rgba(148, 163, 184, 0.12);
-        color: var(--muted);
-        font-size: 12px;
-        font-weight: 700;
-        pointer-events: none;
-      }
-
-      label {
-        font-size: 13px;
-        font-weight: 700;
-        color: #d7e3f7;
-      }
-
-      .hint {
-        color: var(--muted);
-        font-size: 12px;
-        line-height: 1.6;
-      }
-
-      input,
-      select,
-      textarea,
-      button {
-        font: inherit;
-      }
-
-      input,
-      select,
-      textarea {
-        width: 100%;
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        border-radius: 16px;
-        background: linear-gradient(180deg, rgba(9, 17, 31, 0.96), rgba(6, 12, 24, 0.96));
-        color: var(--text);
-        padding: 14px 16px;
-        outline: none;
-        transition:
-          border-color 0.2s ease,
-          box-shadow 0.2s ease,
-          transform 0.2s ease;
-      }
-
-      input::placeholder,
-      textarea::placeholder {
-        color: #7083a1;
-      }
-
-      input:focus,
-      select:focus,
-      textarea:focus {
-        border-color: rgba(79, 140, 255, 0.8);
-        box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.12);
-        transform: translateY(-1px);
-      }
-
-      select {
-        appearance: none;
-        background-image:
-          linear-gradient(45deg, transparent 50%, #8ea7cc 50%),
-          linear-gradient(135deg, #8ea7cc 50%, transparent 50%);
-        background-position:
-          calc(100% - 22px) calc(50% - 1px),
-          calc(100% - 16px) calc(50% - 1px);
-        background-size: 6px 6px, 6px 6px;
-        background-repeat: no-repeat;
-        padding-right: 40px;
-      }
-
-      textarea {
-        min-height: 120px;
-        resize: vertical;
-      }
-
-      button {
-        border: 0;
-        border-radius: 16px;
-        padding: 14px 18px;
-        cursor: pointer;
-        transition:
-          transform 0.15s ease,
-          opacity 0.15s ease,
-          background 0.2s ease,
-          box-shadow 0.2s ease;
-      }
-
-      button:hover:not(:disabled) {
-        transform: translateY(-1px);
-      }
-
-      button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-
-      .btn-primary {
-        background: linear-gradient(135deg, var(--primary), #2967e8);
-        color: white;
-        font-weight: 700;
-        box-shadow: 0 14px 30px rgba(59, 130, 246, 0.24);
-      }
-
-      .btn-primary:hover:not(:disabled) {
-        background: linear-gradient(135deg, var(--primary-hover), #225ede);
-      }
-
-      .btn-secondary {
-        background: rgba(148, 163, 184, 0.08);
-        color: var(--text);
-        border: 1px solid rgba(148, 163, 184, 0.16);
-      }
-
-      .actions {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
-
-      .pill-grid {
-        display: grid;
-        gap: 12px;
-      }
-
-      .pill-grid.compact {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
-      }
-
-      .pill {
-        padding: 16px;
-        border-radius: 18px;
-        border: 1px solid rgba(148, 163, 184, 0.12);
-        background: rgba(7, 14, 27, 0.5);
-      }
-
-      .pill .title {
-        font-size: 12px;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-      }
-
-      .pill .value {
-        margin-top: 8px;
-        font-size: 15px;
-        line-height: 1.55;
-        word-break: break-all;
-      }
-
-      .pill.compact {
-        padding: 12px 14px;
-        border-radius: 14px;
-      }
-
-      .pill.compact .title {
-        font-size: 11px;
-      }
-
-      .pill.compact .value {
-        margin-top: 6px;
-        font-size: 13px;
-        line-height: 1.4;
-      }
-
-      .status-box,
-      .result-box {
-        padding: 16px 18px;
-        border-radius: 18px;
-        border: 1px solid rgba(148, 163, 184, 0.12);
-        background: rgba(7, 14, 27, 0.56);
-        line-height: 1.7;
-      }
-
-      .status-box.compact {
-        padding: 12px 14px;
-        border-radius: 14px;
-        line-height: 1.45;
-        font-size: 13px;
-      }
-
-      .status-box.success {
-        border-color: rgba(34, 197, 94, 0.32);
-        background: rgba(34, 197, 94, 0.11);
-      }
-
-      .status-box.warning {
-        border-color: rgba(245, 158, 11, 0.3);
-        background: rgba(245, 158, 11, 0.11);
-      }
-
-      .status-box.error {
-        border-color: rgba(239, 68, 68, 0.3);
-        background: rgba(239, 68, 68, 0.11);
-      }
-
-      .mono {
-        font-family:
-          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-          "Courier New", monospace;
-        word-break: break-all;
-      }
-
-      .result-list {
-        display: grid;
-        gap: 10px;
-      }
-
-      .result-item {
-        display: grid;
-        gap: 4px;
-      }
-
-      .result-item .key {
-        color: var(--muted);
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.09em;
-      }
-
-      .small {
-        font-size: 12px;
-      }
-
-      .footer-note {
-        margin-top: 2px;
-        padding: 16px 18px;
-        border-radius: 18px;
-        border: 1px dashed rgba(148, 163, 184, 0.18);
-        background: rgba(255, 255, 255, 0.02);
-        color: var(--muted);
-        font-size: 13px;
-        line-height: 1.7;
-      }
-
-      [hidden] {
-        display: none !important;
-      }
-
-      .result-box {
-        max-height: 260px;
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-
-      .compact-card {
-        padding: 18px;
-      }
-
-      .compact-card .section-head {
-        margin-bottom: 12px;
-      }
-
-      .compact-card .section-head h2 {
-        font-size: 18px;
-      }
-
-      .wallet-modal {
-        position: fixed;
-        inset: 0;
-        z-index: 20;
-        display: grid;
-        place-items: center;
-        padding: 16px;
-        background: rgba(2, 8, 23, 0.62);
-        backdrop-filter: blur(8px);
-      }
-
-      .wallet-modal-card {
-        width: min(460px, 100%);
-        max-height: min(80vh, 640px);
-        overflow: auto;
-        padding: 22px;
-        border-radius: 24px;
-        background: var(--panel-strong);
-        border: 1px solid rgba(148, 163, 184, 0.14);
-        box-shadow: var(--shadow);
-      }
-
-      .wallet-modal-head {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 16px;
-      }
-
-      .wallet-modal-title {
-        font-size: 18px;
-        font-weight: 700;
-      }
-
-      .wallet-list {
-        display: grid;
-        gap: 10px;
-      }
-
-      .wallet-item {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        padding: 14px 16px;
-        border-radius: 16px;
-        border: 1px solid rgba(148, 163, 184, 0.14);
-        background: rgba(7, 14, 27, 0.72);
-        color: var(--text);
-        text-align: left;
-      }
-
-      .wallet-item-main {
-        display: grid;
-        gap: 4px;
-      }
-
-      .wallet-item-name {
-        font-weight: 700;
-      }
-
-      .wallet-item-sub {
-        color: var(--muted);
-        font-size: 12px;
-      }
-
-      @media (max-width: 980px) {
-        .hero-grid,
-        .grid,
-        .info-strip {
-          grid-template-columns: 1fr;
-        }
-
-        .sidebar-stack {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 16px;
-        }
-
-        .pill-grid.compact {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-      }
-
-      @media (max-width: 760px) {
-        .topbar {
-          flex-direction: column;
-          align-items: stretch;
-        }
-
-        .topbar-actions {
-          width: 100%;
-          justify-content: space-between;
-        }
-
-        .section-head {
-          flex-direction: column;
-        }
-      }
-
-      @media (max-width: 640px) {
-        .page {
-          width: min(100%, calc(100% - 18px));
-          margin: 12px auto 24px;
-        }
-
-        .topbar,
-        .hero,
-        .card {
-          border-radius: 20px;
-        }
-
-        .topbar,
-        .hero,
-        .card {
-          padding: 18px;
-        }
-
-        .brand {
-          align-items: flex-start;
-        }
-
-        .brand-mark {
-          width: 38px;
-          height: 38px;
-          border-radius: 12px;
-          flex: 0 0 auto;
-        }
-
-        .brand-title {
-          font-size: 14px;
-        }
-
-        .brand-subtitle {
-          display: none;
-        }
-
-        .topbar-note {
-          display: none;
-        }
-
-        .topbar-actions {
-          gap: 8px;
-        }
-
-        .wallet-connect-btn {
-          width: 100%;
-          min-width: 0;
-        }
-
-        .field-row {
-          grid-template-columns: 1fr;
-        }
-
-        input,
-        select,
-        textarea,
-        button {
-          font-size: 16px;
-        }
-
-        .pill-grid.compact {
-          grid-template-columns: 1fr;
-        }
-
-        .actions {
-          flex-direction: column;
-        }
-
-        .actions button {
-          width: 100%;
-        }
-
-        .sidebar-stack {
-          grid-template-columns: 1fr;
-        }
-
-        .sidebar-card-status {
-          order: 1;
-        }
-
-        .sidebar-card-result {
-          order: 2;
-        }
-
-        .sidebar-card-network {
-          order: 3;
-        }
-
-        .sidebar-card-wallet {
-          order: 4;
-        }
-
-        .wallet-modal {
-          align-items: end;
-          padding: 10px;
-        }
-
-        .wallet-modal-card {
-          width: 100%;
-          padding: 18px;
-          border-radius: 20px;
-        }
-
-        .wallet-modal-head {
-          align-items: flex-start;
-        }
-
-        .wallet-item {
-          padding: 14px;
-        }
-      }
-    </style>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/icons.css" />
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
+    <div class="ambient" aria-hidden="true">
+      <div class="ambient-orb ambient-orb-gold"></div>
+      <div class="ambient-orb ambient-orb-blue"></div>
+      <div class="ambient-orb ambient-orb-violet"></div>
+      <div class="ambient-grid"></div>
+    </div>
+
+    <div class="shell">
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" hidden class="svg-sprite">
+      <symbol id="icon-btc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M9.5 8.5c.6-.15 1.1 0 1.3.45.2.45 0 .95-.65 1.2l.75 2.9c.85-.2 1.55-.05 2 .45.55.55.65 1.4-.05 2.15-.75.8-1.85 1.15-3.05.95l-.35 1.35h-1.15l.35-1.35c-.3-.05-.55-.15-.85-.3l-.35 1.35H6.5l1.55-6.05c.75-.2 1.4-.5 1.9-.85l-.7-2.75zm-.85 4.35l.55 2.2c.55.15 1 .05 1.3-.15.35-.3.35-.75 0-1.05-.3-.35-.8-.5-1.45-.4l-.4-1.6zm-1.55-2.35l.5 2c.5.05.85 0 1.05-.25.3-.25.3-.6 0-.85-.25-.3-.65-.45-1.15-.4l-.4-1.5z" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="icon-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/>
+        <path d="M3 7h18v4H3z"/>
+        <circle cx="16.5" cy="13" r="1" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="icon-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/>
+      </symbol>
+      <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+      </symbol>
+      <symbol id="icon-form" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="4" width="16" height="16" rx="3"/>
+        <path d="M8 9h8M8 13h5"/>
+      </symbol>
+      <symbol id="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 2L11 13"/>
+        <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+      </symbol>
+      <symbol id="icon-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+      </symbol>
+      <symbol id="icon-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="6" rx="2"/>
+        <rect x="3" y="14" width="18" height="6" rx="2"/>
+        <circle cx="7" cy="7" r="1" fill="currentColor" stroke="none"/>
+        <circle cx="7" cy="17" r="1" fill="currentColor" stroke="none"/>
+      </symbol>
+      <symbol id="icon-hash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 9h16M4 15h16M10 4L8 20M16 4l-2 16"/>
+      </symbol>
+      <symbol id="icon-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </symbol>
+      <symbol id="icon-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <path d="M14 2v6h6"/>
+      </symbol>
+      <symbol id="icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 10v6M12 7h.01"/>
+      </symbol>
+      <symbol id="icon-translate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2v3"/>
+        <path d="M22 22l-5-10-5 10M14 18h6"/>
+      </symbol>
+      <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </symbol>
+      <symbol id="icon-contract" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+        <path d="M16 3h2a2 2 0 0 1 2 2v2M8 3v4h8V3"/>
+        <path d="M9 13h6M9 17h4"/>
+      </symbol>
+    </svg>
+
     <div class="page">
       <section class="topbar">
         <div class="brand">
-          <div class="brand-mark">BT</div>
+          <div class="brand-mark" aria-hidden="true">
+            <svg class="brand-logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="10" fill="url(#brandGrad)"/>
+              <path d="M18.2 8.4c.9-.2 1.6.1 1.9.8.3.7 0 1.5-.8 1.9l1.1 4.3c1.2-.3 2.2-.1 2.9.6.8.8.9 2-.1 3.1-1 1.1-2.5 1.6-4.2 1.3l-.5 2h-1.6l.5-2c-.4-.1-.8-.2-1.2-.4l-.5 2H13l2.2-8.6c1.1-.3 2-.7 2.7-1.2l-1-3.9zm-1.2 5.8l.8 3.1c.8.2 1.4.1 1.8-.2.5-.4.5-1 0-1.5-.4-.5-1.1-.7-2-.6l-.6-2.8zm-2.1-3.3l.7 2.8c.7.1 1.2 0 1.5-.3.4-.3.4-.8 0-1.2-.3-.4-.9-.6-1.6-.5l-.6-2.8z" fill="#fff"/>
+              <circle cx="24" cy="24" r="5" fill="#22c55e" stroke="#07111f" stroke-width="1.5"/>
+              <path d="M22.2 24l1.3 1.3 2.5-2.6" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <defs>
+                <linearGradient id="brandGrad" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#3b82f6"/>
+                  <stop offset="1" stop-color="#f7931a"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
           <div class="brand-copy">
             <div id="brand-title" class="brand-title">BTC Proof Submitter</div>
             <div id="brand-subtitle" class="brand-subtitle">Static utility for pledge and unlock proof submission</div>
           </div>
         </div>
         <div class="topbar-actions">
-          <div id="topbar-note" class="topbar-note">EVM Wallet</div>
-          <button type="button" id="language-toggle-button" class="btn-secondary lang-toggle-btn">EN</button>
-          <button type="button" id="wallet-connect-button" class="wallet-connect-btn">Connect</button>
+          <div id="topbar-note" class="topbar-note">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-wallet"/></svg>
+            EVM Wallet
+          </div>
+          <button type="button" id="language-toggle-button" class="btn-secondary lang-toggle-btn icon-btn">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-translate"/></svg>
+            EN
+          </button>
+          <button type="button" id="wallet-connect-button" class="wallet-connect-btn icon-btn">
+            <svg class="icon icon-sm wallet-connect-icon" aria-hidden="true"><use href="#icon-wallet"/></svg>
+            Connect
+          </button>
         </div>
       </section>
 
-      <div class="grid">
-        <section class="card">
-          <div class="section-head">
-            <div>
-              <h2 id="submit-heading">提交证明</h2>
+      <div class="dashboard-grid">
+        <section class="card card-main">
+          <div class="card-glow card-glow-main" aria-hidden="true"></div>
+          <div class="section-head section-head-hero">
+            <div class="section-head-main">
+              <div class="section-head-icon section-head-icon-primary">
+                <svg class="icon icon-xl" aria-hidden="true"><use href="#icon-send"/></svg>
+              </div>
+              <div class="section-head-copy">
+                <p class="section-eyebrow" id="submit-eyebrow">On-chain Proof Console</p>
+                <h2 id="submit-heading">提交证明</h2>
+              </div>
             </div>
-            <div id="submit-tag" class="section-tag">Live</div>
+            <div id="submit-tag" class="section-tag">
+              <span class="live-dot" aria-hidden="true"></span>
+              Live
+            </div>
           </div>
 
           <form id="submit-form" class="stack">
             <div class="form-sections">
-              <div class="subcard">
-                <div id="config-title" class="subcard-title">环境配置</div>
+              <div class="subcard subcard-config">
+                <div class="subcard-head">
+                  <div class="subcard-icon"><svg class="icon" aria-hidden="true"><use href="#icon-settings"/></svg></div>
+                  <div id="config-title" class="subcard-title">环境配置</div>
+                </div>
                 <div class="field-row">
                   <div class="field">
-                    <label id="network-label" for="network">网络</label>
+                    <label id="network-label" for="network" class="field-label">
+                      <svg class="icon icon-sm icon-muted" aria-hidden="true"><use href="#icon-globe"/></svg>
+                      网络
+                    </label>
                     <select id="network" name="network">
                       <option value="staging">staging</option>
                       <option value="pg">pg</option>
@@ -904,7 +164,10 @@
                   </div>
 
                   <div class="field">
-                    <label id="proof-type-label" for="proof-type">证明类型</label>
+                    <label id="proof-type-label" for="proof-type" class="field-label">
+                      <svg class="icon icon-sm icon-muted" aria-hidden="true"><use href="#icon-file"/></svg>
+                      证明类型
+                    </label>
                     <select id="proof-type" name="proof-type">
                       <option id="proof-type-pledge" value="pledge">提交质押证明</option>
                       <option id="proof-type-unlock" value="unlock">提交解锁证明</option>
@@ -919,10 +182,16 @@
                 </div>
               </div>
 
-              <div class="subcard">
-                <div id="params-title" class="subcard-title">业务参数</div>
+              <div class="subcard subcard-params">
+                <div class="subcard-head">
+                  <div class="subcard-icon"><svg class="icon" aria-hidden="true"><use href="#icon-form"/></svg></div>
+                  <div id="params-title" class="subcard-title">业务参数</div>
+                </div>
                 <div class="field">
-                  <label id="order-address-label" for="order-address">Order ID / 订单合约地址</label>
+                  <label id="order-address-label" for="order-address" class="field-label">
+                    <svg class="icon icon-sm icon-muted" aria-hidden="true"><use href="#icon-contract"/></svg>
+                    Order ID / 订单合约地址
+                  </label>
                   <input
                     id="order-address"
                     name="order-address"
@@ -933,7 +202,7 @@
                 </div>
 
                 <div class="field" id="timeout-repay-row" hidden>
-                  <label id="timeout-repay-enabled-label" for="timeout-repay-enabled">帮还开关</label>
+                  <label id="timeout-repay-enabled-label" for="timeout-repay-enabled" class="field-label">帮还开关</label>
                   <select id="timeout-repay-enabled" name="timeout-repay-enabled">
                     <option value="true" id="timeout-repay-enabled-on">开启（允许他人帮还）</option>
                     <option value="false" id="timeout-repay-enabled-off">关闭</option>
@@ -941,7 +210,10 @@
                 </div>
 
                 <div class="field" id="borrower-btc-row" hidden>
-                  <label id="borrower-btc-label" for="borrower-btc-address">借款人 BTC 地址</label>
+                  <label id="borrower-btc-label" for="borrower-btc-address" class="field-label">
+                    <svg class="icon icon-sm icon-btc" aria-hidden="true"><use href="#icon-btc"/></svg>
+                    借款人 BTC 地址
+                  </label>
                   <input
                     id="borrower-btc-address"
                     name="borrower-btc-address"
@@ -953,7 +225,10 @@
 
                 <div class="field-row" id="btc-txid-row">
                   <div class="field">
-                    <label id="btc-txid-label" for="btc-txid">BTC 交易哈希</label>
+                    <label id="btc-txid-label" for="btc-txid" class="field-label">
+                      <svg class="icon icon-sm icon-muted" aria-hidden="true"><use href="#icon-hash"/></svg>
+                      BTC 交易哈希
+                    </label>
                     <input
                       id="btc-txid"
                       name="btc-txid"
@@ -967,47 +242,69 @@
             </div>
 
             <div class="actions">
-              <button type="submit" id="submit-proof" class="btn-primary">
+              <button type="submit" id="submit-proof" class="btn-primary icon-btn">
+                <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-send"/></svg>
                 生成 proof 并提交
               </button>
             </div>
           </form>
 
           <div class="footer-note" id="form-footer-note">
-            BTC 确认数需至少 <strong>3</strong>。
+            <svg class="icon icon-sm icon-muted" aria-hidden="true"><use href="#icon-info"/></svg>
+            <span>BTC 确认数需至少 <strong>3</strong>。</span>
           </div>
         </section>
 
-        <aside class="stack sidebar-stack">
-          <section class="card compact-card sidebar-card-network">
-            <div class="section-head">
-              <div>
+        <aside class="sidebar-panel">
+          <div class="sidebar-label" id="sidebar-label">Mission Control</div>
+          <div class="stack sidebar-stack">
+          <section class="card compact-card sidebar-card-network card-accent-blue">
+            <div class="section-head section-head-compact">
+              <div class="section-head-main">
+                <div class="section-head-icon section-head-icon-blue">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-globe"/></svg>
+                </div>
                 <h2 id="network-card-title">当前网络</h2>
               </div>
             </div>
             <div class="pill-grid compact">
               <div class="pill compact">
-                <div class="title">RPC</div>
+                <div class="pill-head">
+                  <svg class="icon icon-sm icon-muted" aria-hidden="true"><use href="#icon-server"/></svg>
+                  <div class="title">RPC</div>
+                </div>
                 <div id="network-rpc" class="value mono"></div>
               </div>
               <div class="pill compact">
-                <div class="title">Chain ID</div>
+                <div class="pill-head">
+                  <svg class="icon icon-sm icon-muted" aria-hidden="true"><use href="#icon-hash"/></svg>
+                  <div class="title">Chain ID</div>
+                </div>
                 <div id="network-chain-id" class="value mono"></div>
               </div>
               <div class="pill compact">
-                <div id="issuer-title" class="title">Issuer 合约</div>
+                <div class="pill-head">
+                  <svg class="icon icon-sm icon-muted" aria-hidden="true"><use href="#icon-contract"/></svg>
+                  <div id="issuer-title" class="title">Issuer 合约</div>
+                </div>
                 <div id="network-issuer" class="value mono"></div>
               </div>
               <div class="pill compact">
-                <div id="explorer-title" class="title">浏览器</div>
+                <div class="pill-head">
+                  <svg class="icon icon-sm icon-muted" aria-hidden="true"><use href="#icon-link"/></svg>
+                  <div id="explorer-title" class="title">浏览器</div>
+                </div>
                 <div id="network-explorer" class="value"></div>
               </div>
             </div>
           </section>
 
-          <section class="card compact-card sidebar-card-wallet">
-            <div class="section-head">
-              <div>
+          <section class="card compact-card sidebar-card-wallet card-accent-green">
+            <div class="section-head section-head-compact">
+              <div class="section-head-main">
+                <div class="section-head-icon section-head-icon-green">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-wallet"/></svg>
+                </div>
                 <h2 id="wallet-card-title">钱包状态</h2>
               </div>
             </div>
@@ -1016,9 +313,12 @@
             </div>
           </section>
 
-          <section class="card sidebar-card-status">
-            <div class="section-head">
-              <div>
+          <section class="card sidebar-card-status card-accent-amber">
+            <div class="section-head section-head-compact">
+              <div class="section-head-main">
+                <div class="section-head-icon section-head-icon-amber">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-activity"/></svg>
+                </div>
                 <h2 id="action-card-title">执行状态</h2>
               </div>
             </div>
@@ -1027,9 +327,12 @@
             </div>
           </section>
 
-          <section class="card sidebar-card-result">
-            <div class="section-head">
-              <div>
+          <section class="card sidebar-card-result card-accent-purple">
+            <div class="section-head section-head-compact">
+              <div class="section-head-main">
+                <div class="section-head-icon section-head-icon-purple">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-file"/></svg>
+                </div>
                 <h2 id="result-card-title">本次结果</h2>
               </div>
             </div>
@@ -1037,1739 +340,31 @@
               还没有生成 proof。
             </div>
           </section>
+          </div>
         </aside>
       </div>
 
       <div id="wallet-modal" class="wallet-modal" hidden>
         <div class="wallet-modal-card">
           <div class="wallet-modal-head">
-            <div id="wallet-modal-title" class="wallet-modal-title">选择钱包</div>
-            <button type="button" id="wallet-modal-close" class="btn-secondary">关闭</button>
+            <div class="wallet-modal-title-wrap">
+              <div class="section-head-icon section-head-icon-green">
+                <svg class="icon" aria-hidden="true"><use href="#icon-wallet"/></svg>
+              </div>
+              <div id="wallet-modal-title" class="wallet-modal-title">选择钱包</div>
+            </div>
+            <button type="button" id="wallet-modal-close" class="btn-secondary icon-btn">
+              <svg class="icon icon-sm" aria-hidden="true"><use href="#icon-x"/></svg>
+              关闭
+            </button>
           </div>
           <div id="wallet-list" class="wallet-list"></div>
         </div>
       </div>
     </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
-    <script>
-      const NETWORKS = {
-        staging: {
-          key: "staging",
-          label: "staging",
-          rpcUrl: "https://api2.elastos.cc/esc",
-          chainId: 20,
-          chainIdHex: "0x14",
-          chainName: "Elastos Smart Chain",
-          explorer: "https://esc.elastos.io",
-          issuer: "0x3990427F5C2F27193D5a81cF960d0A6c93fc21D6",
-          nativeCurrency: {
-            name: "ELA",
-            symbol: "ELA",
-            decimals: 18,
-          },
-        },
-        pg: {
-          key: "pg",
-          label: "pg",
-          rpcUrl: "https://api2.elastos.cc/pgp",
-          chainId: 860621,
-          chainIdHex: "0xd21cd",
-          chainName: "PGP Chain",
-          explorer: "https://pgp.elastos.io",
-          issuer: "0x91cf47c5d2b44Da124d4B54E9207aE6FB63D5Fa7",
-          nativeCurrency: {
-            name: "PGA",
-            symbol: "PGA",
-            decimals: 18,
-          },
-        },
-      };
-
-      const BTC_APIS = {
-        rpc: "https://nownodes-btc.bel2.org",
-        explorer: "https://nownodes-btcbook.bel2.org/api/v2",
-        fallback: "https://blockstream.info/api",
-      };
-
-      const MIN_CONFIRMATIONS = 3;
-
-      const ORDER_ABI = [
-        "function submitToLenderTransferProof(bytes rawData, uint32 blockHeight, (bytes32[] proof, bytes32 root, bytes32 leaf, bool[] flags) merkleProof, uint32 toLenderTxIndex) external",
-        "function submitRenewalOrderProof(bytes rawData, uint32 blockHeight, (bytes32[] proof, bytes32 root, bytes32 leaf, bool[] flags) merkleProof) external",
-        "function confirmRepaymentFromBalance(string borrowerBtcAddress) external",
-        "function setTimeoutRepayEnabled(bool enabled) external",
-        "function executeIncreaseRequest() external",
-      ];
-
-      const ISSUER_ABI = [
-        "function submitRegularUnlockTransferProof(address order, bytes txData, uint32 blockHeight, (bytes32[] proof, bytes32 root, bytes32 leaf, bool[] flags) merkleProof) external",
-        "function cancelObsidianIncrease(address order) external",
-      ];
-
-      // Custom error definitions across the contracts the proof flow can touch (ObsidianOrder,
-      // Issuer, LoanContract, LoanTools, TaprootTools, ObsidianBtcAddressBinder, Order). Needed
-      // so a revert is shown as its error NAME instead of a raw 4-byte selector hash.
-      // Regenerate from the contract ABIs after upgrades.
-      const ERROR_ABI = [
-        "error AddressEmptyCode(address target)",
-        "error AddressInsufficientBalance(address account)",
-        "error AlreadyCreated()",
-        "error EmptyBtcAddress()",
-        "error ErrorStatus()",
-        "error ExceedsMaxBorrow()",
-        "error FailedInnerCall()",
-        "error IncreaseWindowClosed()",
-        "error InsufficientRepaymentBalance()",
-        "error InvalidDeadline()",
-        "error InvalidInitialization()",
-        "error InvalidParameters()",
-        "error InvalidUnlockAmount()",
-        "error InvalidVersion()",
-        "error LenderOnly()",
-        "error MathOverflowedMulDiv()",
-        "error NoOpen()",
-        "error NoPermission()",
-        "error NotCloseable()",
-        "error NotInitializing()",
-        "error NotRenewalOperator()",
-        "error OnlyBorrower()",
-        "error OrderClosedAlready()",
-        "error OrderTimedOut()",
-        "error OwnableInvalidOwner(address owner)",
-        "error OwnableUnauthorizedAccount(address account)",
-        "error ReentrancyGuardReentrantCall()",
-        "error RenewalWindowNotOpen()",
-        "error SafeERC20FailedOperation(address token)",
-        "error TimelockOverflow()",
-        "error TimeoutRepayDisabled()",
-        "error ArbitratorNotActive()",
-        "error ArrayMismatch()",
-        "error DelayOneBlock()",
-        "error EmptyAddress()",
-        "error InsufficientCollateral()",
-        "error InvalidAmount()",
-        "error InvalidMerkleRoot()",
-        "error InvalidStatus()",
-        "error InvalidTaprootKey()",
-        "error InvalidTxId()",
-        "error InvalidUtxo()",
-        "error LoanTooLarge()",
-        "error LoanTooSmall()",
-        "error NoBtcUtils()",
-        "error NoRenewalManager()",
-        "error NoTapRootUnlock()",
-        "error NoToken()",
-        "error NoUnlockTx()",
-        "error NotAuthorizedApp()",
-        "error OnlyOrdersAllowed()",
-        "error VerifyFailed()",
-        "error BindingInUse(uint256 tokenId, address activeOrder)",
-        "error BtcAddressAlreadyBound(bytes32 btcAddressHash)",
-        "error BtcAddressAlreadyUsed(bytes32 btcAddressHash)",
-        "error BtcAddressMismatch(uint256 tokenId, bytes32 expectedHash, bytes32 actualHash)",
-        "error CollateralTxIdAlreadyUsed(bytes32 txId)",
-        "error InvalidCollateralTxId()",
-        "error NotActiveOrder(address caller, uint256 tokenId)",
-        "error NotBinderOwner(address caller)",
-        "error NotConsumerManager(address account)",
-        "error NotTokenOwner(address user, uint256 tokenId)",
-        "error NotValidOrder(address order)",
-        "error TokenAlreadyBound(uint256 tokenId)",
-        "error TokenNotBound(uint256 tokenId)",
-        "error ZeroAddress()",
-        "error AllowanceTooLow()",
-        "error ArbitrationUnavailable()",
-        "error ArbitratorDeadlineNotPassed()",
-        "error ArbitratorOnly()",
-        "error InvalidBtcData()",
-        "error InvalidLender()",
-        "error InvalidPreimage()",
-        "error InvalidProofLeaf()",
-        "error InvalidRepaidExpireWindow()",
-        "error InvalidScriptTimelock()",
-        "error InvalidSignature()",
-        "error InvalidTaprootLeaves()",
-        "error InvalidTimelock()",
-        "error InvalidV2TaprootLeaves()",
-        "error NoSubmitPledgeProof()",
-        "error NotReady()",
-        "error OnlyV2()",
-      ];
-
-      // Let the contract instances decode their own custom errors (ethers v6 then populates
-      // error.revert on a revert), and build a standalone interface for explicit decoding.
-      ORDER_ABI.push(...ERROR_ABI);
-      ISSUER_ABI.push(...ERROR_ABI);
-      const ERROR_INTERFACE = new ethers.Interface(ERROR_ABI);
-
-      const LANG_STORAGE_KEY = "proof_submitter_locale";
-
-      const I18N = {
-        zh: {
-          meta: {
-            pageTitle: "Proof Submitter",
-            brandTitle: "BTC Proof Submitter",
-            brandSubtitle: "用于提交 BTC 质押、解锁和延期证明的静态工具",
-            topbarNote: "EVM 钱包",
-            submitTag: "Live",
-            languageToggle: "EN",
-          },
-          form: {
-            heading: "提交证明",
-            configTitle: "环境配置",
-            networkLabel: "网络",
-            proofTypeLabel: "证明类型",
-            paramsTitle: "业务参数",
-            orderAddressLabel: "Order ID / 订单合约地址",
-            btcTxidLabel: "BTC 交易哈希",
-            btcTxidPlaceholder: "例如：b0239a30d8344387...",
-            submit: "生成 proof 并提交",
-            processing: "处理中...",
-            footerMinConfirmations: "BTC 确认数需至少 <strong>3</strong>。",
-            footerRenewal: "延期证明会直接提交空 proof。",
-            footerRenewalTopup: "延期补仓证明需要填写 BTC 哈希，确认数需至少 <strong>3</strong>。",
-            footerRepayment: "调用订单合约 confirmRepaymentFromBalance，使用合约余额完成还款。",
-            borrowerBtcLabel: "借款人 BTC 地址",
-            borrowerBtcPlaceholder: "bc1...",
-            submitRepayment: "确认还款",
-            footerTimeoutRepay: "调用 setTimeoutRepayEnabled，设置是否允许他人超时帮还。",
-            timeoutRepayEnabledLabel: "帮还开关",
-            timeoutRepayEnabledOn: "开启（允许他人帮还）",
-            timeoutRepayEnabledOff: "关闭",
-            submitTimeoutRepay: "提交设置",
-            footerExecuteIncrease: "调用订单合约 executeIncreaseRequest，执行增贷请求。",
-            submitExecuteIncrease: "执行增贷",
-            footerCancelIncrease: "调用 Issuer 合约 cancelObsidianIncrease，取消增贷请求。",
-            submitCancelIncrease: "取消增贷",
-          },
-          proofTypes: {
-            pledge: "提交质押证明",
-            unlock: "提交解锁证明",
-            renewal: "提交延期证明",
-            renewalTopup: "提交延期补仓证明",
-            repayment: "确认余额还款",
-            timeoutRepay: "开启超时帮还",
-            executeIncrease: "同意增贷",
-            cancelIncrease: "取消增贷",
-          },
-          resultProofTypes: {
-            pledge: "质押证明",
-            unlock: "解锁证明",
-            renewal: "延期证明",
-            renewalTopup: "延期补仓证明",
-            repayment: "余额还款",
-            timeoutRepay: "超时帮还设置",
-            executeIncrease: "执行增贷",
-            cancelIncrease: "取消增贷",
-          },
-          cards: {
-            network: "当前网络",
-            wallet: "钱包状态",
-            action: "执行状态",
-            result: "本次结果",
-            issuer: "Issuer 合约",
-            explorer: "浏览器",
-          },
-          wallet: {
-            defaultName: "钱包",
-            connect: "Connect",
-            modalTitle: "选择钱包",
-            modalClose: "关闭",
-            notConnected: "尚未连接钱包。",
-            notDetected: "未检测到可用的 EVM 钱包。",
-            injectedWallet: "注入式 EVM 钱包",
-            connected: "已连接钱包：<span class=\"mono\">{wallet}</span><br/>账户：<span class=\"mono\">{account}</span><br/>当前链：<span class=\"mono\">{chainId}</span>",
-            disconnected: "钱包已断开连接。",
-            connecting: "正在连接钱包...",
-            connectedShort: "钱包已连接。",
-            connectFailed: "连接钱包失败：{message}",
-          },
-          status: {
-            waitingInput: "等待输入参数。",
-            noResult: "还没有生成 proof。",
-            queryingBtc: "正在查询 BTC 交易信息...",
-            generatingProof: "正在生成 merkle proof...",
-            switchingNetwork: "正在切换钱包网络...",
-            renewalDirect: "未提供 BTC 哈希，正在直接提交延期证明...",
-            submittingPledge: "正在提交质押证明...",
-            submittingUnlock: "正在提交解锁证明...",
-            submittingRenewal: "正在提交延期证明...",
-            submittingRenewalTopup: "正在提交延期补仓证明...",
-            submittingRepayment: "正在确认余额还款...",
-            submittingTimeoutRepay: "正在设置超时帮还...",
-            submittingExecuteIncrease: "正在执行增贷...",
-            submittingCancelIncrease: "正在取消增贷...",
-            txSubmitted: "已发起链上交易，等待打包确认...<br/>交易哈希：<span class=\"mono\">{hash}</span>",
-            txSuccess: "已提交完成。<br/>交易哈希：<span class=\"mono\">{hash}</span>",
-            submitFailed: "提交失败：{message}",
-            networkSwitched: "网络已切换。",
-          },
-          result: {
-            status: "状态",
-            type: "类型",
-            evmTx: "EVM Tx",
-            order: "Order",
-            btcHeight: "BTC Height",
-            btcTx: "BTC Tx",
-            borrowerBtc: "借款人 BTC 地址",
-            timeoutRepayEnabled: "帮还开关",
-            enabledOn: "开启",
-            enabledOff: "关闭",
-            blockHeight: "Block Height",
-            confirmations: "Confirmations",
-            proof: "Proof",
-            proofNodes: "{count} 个节点",
-            notProvided: "未提供",
-            emptyProof: "空 proof",
-            submitted: "已提交完成",
-          },
-          errors: {
-            unknown: "未知错误",
-            noWallet: "未检测到可用 EVM 钱包，请先安装钱包扩展。",
-            invalidOrderAddress: "请输入正确的订单合约地址。",
-            invalidBtcTxid: "请输入正确的 BTC 交易哈希。",
-            invalidBorrowerBtcAddress: "请输入借款人 BTC 地址。",
-            btcRpcHttp: "BTC RPC 请求失败: HTTP {status}",
-            btcRpcError: "BTC RPC 返回错误",
-            requestFailed: "请求失败: {url} ({status})",
-            invalidHexLength: "非法十六进制长度: {hex}",
-            txNotInBlock: "目标 BTC 交易不在区块交易列表中，无法生成 merkle proof。",
-            noRawTx: "没有拿到 BTC raw transaction hex。",
-            txUnconfirmed: "BTC 交易还没有被区块确认，暂时不能提交 proof。",
-            insufficientConfirmations: "BTC 交易确认数不足，当前 {current}，至少需要 {required} 个确认。",
-            noBlockHeight: "无法获取 BTC 区块高度。",
-            txFailed: "链上交易执行失败。",
-          },
-        },
-        en: {
-          meta: {
-            pageTitle: "Proof Submitter",
-            brandTitle: "BTC Proof Submitter",
-            brandSubtitle: "Static utility for BTC pledge, unlock, and renewal proof submission",
-            topbarNote: "EVM Wallet",
-            submitTag: "Live",
-            languageToggle: "中文",
-          },
-          form: {
-            heading: "Submit Proof",
-            configTitle: "Configuration",
-            networkLabel: "Network",
-            proofTypeLabel: "Proof Type",
-            paramsTitle: "Parameters",
-            orderAddressLabel: "Order ID / Order contract address",
-            btcTxidLabel: "BTC Transaction Hash",
-            btcTxidPlaceholder: "e.g. b0239a30d8344387...",
-            submit: "Generate Proof and Submit",
-            processing: "Processing...",
-            footerMinConfirmations: "BTC confirmations must be at least <strong>3</strong>.",
-            footerRenewal: "Renewal proof will submit an empty proof directly.",
-            footerRenewalTopup: "Renewal top-up proof requires a BTC hash with at least <strong>3</strong> confirmations.",
-            footerRepayment: "Calls order contract confirmRepaymentFromBalance to complete repayment from contract balance.",
-            borrowerBtcLabel: "Borrower BTC address",
-            borrowerBtcPlaceholder: "bc1...",
-            submitRepayment: "Confirm Repayment",
-            footerTimeoutRepay: "Calls setTimeoutRepayEnabled to allow or disallow third-party timeout repayment.",
-            timeoutRepayEnabledLabel: "Timeout repay switch",
-            timeoutRepayEnabledOn: "Enable (allow third-party repayment)",
-            timeoutRepayEnabledOff: "Disable",
-            submitTimeoutRepay: "Apply Setting",
-            footerExecuteIncrease: "Calls order contract executeIncreaseRequest to execute the increase request.",
-            submitExecuteIncrease: "Execute Increase",
-            footerCancelIncrease: "Calls Issuer contract cancelObsidianIncrease to cancel the increase request.",
-            submitCancelIncrease: "Cancel Increase",
-          },
-          proofTypes: {
-            pledge: "Submit Pledge Proof",
-            unlock: "Submit Unlock Proof",
-            renewal: "Submit Renewal Proof",
-            renewalTopup: "Submit Renewal Top-up Proof",
-            repayment: "Confirm Repayment from Balance",
-            timeoutRepay: "Enable Timeout Repayment",
-            executeIncrease: "Execute Increase Request",
-            cancelIncrease: "Cancel Increase Request",
-          },
-          resultProofTypes: {
-            pledge: "Pledge Proof",
-            unlock: "Unlock Proof",
-            renewal: "Renewal Proof",
-            renewalTopup: "Renewal Top-up Proof",
-            repayment: "Balance Repayment",
-            timeoutRepay: "Timeout Repay Setting",
-            executeIncrease: "Execute Increase",
-            cancelIncrease: "Cancel Increase",
-          },
-          cards: {
-            network: "Current Network",
-            wallet: "Wallet Status",
-            action: "Action Status",
-            result: "Latest Result",
-            issuer: "Issuer Contract",
-            explorer: "Explorer",
-          },
-          wallet: {
-            defaultName: "Wallet",
-            connect: "Connect",
-            modalTitle: "Select Wallet",
-            modalClose: "Close",
-            notConnected: "Wallet not connected.",
-            notDetected: "No EVM wallet detected.",
-            injectedWallet: "Injected EVM wallet",
-            connected: "Connected wallet: <span class=\"mono\">{wallet}</span><br/>Account: <span class=\"mono\">{account}</span><br/>Current chain: <span class=\"mono\">{chainId}</span>",
-            disconnected: "Wallet disconnected.",
-            connecting: "Connecting wallet...",
-            connectedShort: "Wallet connected.",
-            connectFailed: "Wallet connection failed: {message}",
-          },
-          status: {
-            waitingInput: "Waiting for input.",
-            noResult: "No proof has been generated yet.",
-            queryingBtc: "Fetching BTC transaction data...",
-            generatingProof: "Generating merkle proof...",
-            switchingNetwork: "Switching wallet network...",
-            renewalDirect: "No BTC hash provided, submitting renewal proof directly...",
-            submittingPledge: "Submitting pledge proof...",
-            submittingUnlock: "Submitting unlock proof...",
-            submittingRenewal: "Submitting renewal proof...",
-            submittingRenewalTopup: "Submitting renewal top-up proof...",
-            submittingRepayment: "Confirming repayment from balance...",
-            submittingTimeoutRepay: "Applying timeout repay setting...",
-            submittingExecuteIncrease: "Executing increase request...",
-            submittingCancelIncrease: "Cancelling increase request...",
-            txSubmitted: "Transaction sent, waiting for confirmation...<br/>Tx hash: <span class=\"mono\">{hash}</span>",
-            txSuccess: "Submitted successfully.<br/>Tx hash: <span class=\"mono\">{hash}</span>",
-            submitFailed: "Submission failed: {message}",
-            networkSwitched: "Network switched.",
-          },
-          result: {
-            status: "Status",
-            type: "Type",
-            evmTx: "EVM Tx",
-            order: "Order",
-            btcHeight: "BTC Height",
-            btcTx: "BTC Tx",
-            borrowerBtc: "Borrower BTC address",
-            timeoutRepayEnabled: "Timeout repay switch",
-            enabledOn: "Enabled",
-            enabledOff: "Disabled",
-            blockHeight: "Block Height",
-            confirmations: "Confirmations",
-            proof: "Proof",
-            proofNodes: "{count} nodes",
-            notProvided: "Not provided",
-            emptyProof: "Empty proof",
-            submitted: "Submitted successfully",
-          },
-          errors: {
-            unknown: "Unknown error",
-            noWallet: "No EVM wallet detected. Please install a wallet extension first.",
-            invalidOrderAddress: "Please enter a valid order contract address.",
-            invalidBtcTxid: "Please enter a valid BTC transaction hash.",
-            invalidBorrowerBtcAddress: "Please enter the borrower BTC address.",
-            btcRpcHttp: "BTC RPC request failed: HTTP {status}",
-            btcRpcError: "BTC RPC returned an error",
-            requestFailed: "Request failed: {url} ({status})",
-            invalidHexLength: "Invalid hex length: {hex}",
-            txNotInBlock: "Target BTC transaction is not in the block transaction list, unable to generate merkle proof.",
-            noRawTx: "BTC raw transaction hex is unavailable.",
-            txUnconfirmed: "BTC transaction is not yet confirmed in a block, proof cannot be submitted yet.",
-            insufficientConfirmations: "BTC confirmations are insufficient: current {current}, required at least {required}.",
-            noBlockHeight: "Unable to retrieve BTC block height.",
-            txFailed: "On-chain transaction execution failed.",
-          },
-        },
-      };
-
-      const state = {
-        provider: null,
-        signer: null,
-        account: null,
-        chainIdHex: null,
-        walletProvider: null,
-        walletLabel: "",
-        discoveredWallets: [],
-        locale: (() => {
-          try {
-            return localStorage.getItem(LANG_STORAGE_KEY) || "zh";
-          } catch {
-            return "zh";
-          }
-        })(),
-      };
-
-      const elements = {
-        brandTitle: document.getElementById("brand-title"),
-        brandSubtitle: document.getElementById("brand-subtitle"),
-        topbarNote: document.getElementById("topbar-note"),
-        languageToggleButton: document.getElementById("language-toggle-button"),
-        form: document.getElementById("submit-form"),
-        submitHeading: document.getElementById("submit-heading"),
-        submitTag: document.getElementById("submit-tag"),
-        configTitle: document.getElementById("config-title"),
-        networkLabel: document.getElementById("network-label"),
-        network: document.getElementById("network"),
-        proofTypeLabel: document.getElementById("proof-type-label"),
-        proofType: document.getElementById("proof-type"),
-        proofTypePledge: document.getElementById("proof-type-pledge"),
-        proofTypeUnlock: document.getElementById("proof-type-unlock"),
-        proofTypeRenewal: document.getElementById("proof-type-renewal"),
-        proofTypeRenewalTopup: document.getElementById("proof-type-renewal-topup"),
-        proofTypeRepayment: document.getElementById("proof-type-repayment"),
-        proofTypeTimeoutRepay: document.getElementById("proof-type-timeout-repay"),
-        proofTypeExecuteIncrease: document.getElementById("proof-type-execute-increase"),
-        proofTypeCancelIncrease: document.getElementById("proof-type-cancel-increase"),
-        paramsTitle: document.getElementById("params-title"),
-        orderAddressLabel: document.getElementById("order-address-label"),
-        orderAddress: document.getElementById("order-address"),
-        timeoutRepayRow: document.getElementById("timeout-repay-row"),
-        timeoutRepayEnabledLabel: document.getElementById("timeout-repay-enabled-label"),
-        timeoutRepayEnabled: document.getElementById("timeout-repay-enabled"),
-        timeoutRepayEnabledOn: document.getElementById("timeout-repay-enabled-on"),
-        timeoutRepayEnabledOff: document.getElementById("timeout-repay-enabled-off"),
-        borrowerBtcRow: document.getElementById("borrower-btc-row"),
-        borrowerBtcLabel: document.getElementById("borrower-btc-label"),
-        borrowerBtcAddress: document.getElementById("borrower-btc-address"),
-        btcTxidRow: document.getElementById("btc-txid-row"),
-        btcTxidLabel: document.getElementById("btc-txid-label"),
-        btcTxid: document.getElementById("btc-txid"),
-        formFooterNote: document.getElementById("form-footer-note"),
-        networkCardTitle: document.getElementById("network-card-title"),
-        issuerTitle: document.getElementById("issuer-title"),
-        explorerTitle: document.getElementById("explorer-title"),
-        walletCardTitle: document.getElementById("wallet-card-title"),
-        actionCardTitle: document.getElementById("action-card-title"),
-        resultCardTitle: document.getElementById("result-card-title"),
-        walletConnectButton: document.getElementById("wallet-connect-button"),
-        walletModal: document.getElementById("wallet-modal"),
-        walletModalTitle: document.getElementById("wallet-modal-title"),
-        walletModalClose: document.getElementById("wallet-modal-close"),
-        walletList: document.getElementById("wallet-list"),
-        submitProof: document.getElementById("submit-proof"),
-        walletStatus: document.getElementById("wallet-status"),
-        actionStatus: document.getElementById("action-status"),
-        resultBox: document.getElementById("result-box"),
-        networkRpc: document.getElementById("network-rpc"),
-        networkChainId: document.getElementById("network-chain-id"),
-        networkIssuer: document.getElementById("network-issuer"),
-        networkExplorer: document.getElementById("network-explorer"),
-      };
-
-      function getSelectedNetwork() {
-        return NETWORKS[elements.network.value];
-      }
-
-      function getSelectedProofType() {
-        return elements.proofType.value;
-      }
-
-      function t(key, vars = {}) {
-        const dictionary = I18N[state.locale] || I18N.zh;
-        const value = key.split(".").reduce((current, part) => current?.[part], dictionary);
-        if (typeof value !== "string") {
-          return key;
-        }
-
-        return value.replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? ""));
-      }
-
-      function setLocale(locale) {
-        state.locale = locale === "en" ? "en" : "zh";
-        try {
-          localStorage.setItem(LANG_STORAGE_KEY, state.locale);
-        } catch {}
-
-        renderStaticTexts();
-        renderWalletList();
-        updateNetworkInfo();
-        updateProofTypeHint();
-        setWalletButton();
-
-        if (state.account) {
-          setWalletStatus(
-            t("wallet.connected", {
-              wallet: escapeHtml(state.walletLabel || t("wallet.defaultName")),
-              account: escapeHtml(state.account),
-              chainId: escapeHtml(state.chainIdHex || ""),
-            }),
-            "success"
-          );
-        } else {
-          setWalletStatus(t("wallet.notConnected"), "warning");
-        }
-
-        if (!elements.actionStatus.textContent.trim() || elements.actionStatus.textContent.trim() === I18N.zh.status.waitingInput || elements.actionStatus.textContent.trim() === I18N.en.status.waitingInput) {
-          setStatus(t("status.waitingInput"));
-        }
-
-        if (!elements.resultBox.textContent.trim() || elements.resultBox.textContent.trim() === I18N.zh.status.noResult || elements.resultBox.textContent.trim() === I18N.en.status.noResult) {
-          setResult(t("status.noResult"));
-        }
-      }
-
-      function renderStaticTexts() {
-        document.title = t("meta.pageTitle");
-        elements.brandTitle.textContent = t("meta.brandTitle");
-        elements.brandSubtitle.textContent = t("meta.brandSubtitle");
-        elements.topbarNote.textContent = t("meta.topbarNote");
-        elements.languageToggleButton.textContent = t("meta.languageToggle");
-        elements.submitHeading.textContent = t("form.heading");
-        elements.submitTag.textContent = t("meta.submitTag");
-        elements.configTitle.textContent = t("form.configTitle");
-        elements.networkLabel.textContent = t("form.networkLabel");
-        elements.proofTypeLabel.textContent = t("form.proofTypeLabel");
-        elements.proofTypePledge.textContent = t("proofTypes.pledge");
-        elements.proofTypeUnlock.textContent = t("proofTypes.unlock");
-        elements.proofTypeRenewal.textContent = t("proofTypes.renewal");
-        elements.proofTypeRenewalTopup.textContent = t("proofTypes.renewalTopup");
-        elements.proofTypeRepayment.textContent = t("proofTypes.repayment");
-        elements.proofTypeTimeoutRepay.textContent = t("proofTypes.timeoutRepay");
-        elements.proofTypeExecuteIncrease.textContent = t("proofTypes.executeIncrease");
-        elements.proofTypeCancelIncrease.textContent = t("proofTypes.cancelIncrease");
-        elements.paramsTitle.textContent = t("form.paramsTitle");
-        elements.orderAddressLabel.textContent = t("form.orderAddressLabel");
-        elements.timeoutRepayEnabledLabel.textContent = t("form.timeoutRepayEnabledLabel");
-        elements.timeoutRepayEnabledOn.textContent = t("form.timeoutRepayEnabledOn");
-        elements.timeoutRepayEnabledOff.textContent = t("form.timeoutRepayEnabledOff");
-        elements.borrowerBtcLabel.textContent = t("form.borrowerBtcLabel");
-        elements.borrowerBtcAddress.placeholder = t("form.borrowerBtcPlaceholder");
-        elements.btcTxidLabel.textContent = t("form.btcTxidLabel");
-        elements.btcTxid.placeholder = t("form.btcTxidPlaceholder");
-        updateSubmitButtonText();
-        elements.networkCardTitle.textContent = t("cards.network");
-        elements.issuerTitle.textContent = t("cards.issuer");
-        elements.explorerTitle.textContent = t("cards.explorer");
-        elements.walletCardTitle.textContent = t("cards.wallet");
-        elements.actionCardTitle.textContent = t("cards.action");
-        elements.resultCardTitle.textContent = t("cards.result");
-        elements.walletModalTitle.textContent = t("wallet.modalTitle");
-        elements.walletModalClose.textContent = t("wallet.modalClose");
-        elements.submitProof.textContent = t("form.submit");
-      }
-
-      function setStatus(message, kind = "") {
-        elements.actionStatus.className = `status-box ${kind}`.trim();
-        elements.actionStatus.innerHTML = message;
-      }
-
-      function setWalletStatus(message, kind = "") {
-        elements.walletStatus.className = `status-box ${kind}`.trim();
-        elements.walletStatus.innerHTML = message;
-      }
-
-      function setResult(html) {
-        elements.resultBox.innerHTML = html;
-      }
-
-      function getSubmitButtonIdleText() {
-        const proofType = getSelectedProofType();
-        if (proofType === "repayment") return t("form.submitRepayment");
-        if (proofType === "timeout-repay") return t("form.submitTimeoutRepay");
-        if (proofType === "execute-increase") return t("form.submitExecuteIncrease");
-        if (proofType === "cancel-increase") return t("form.submitCancelIncrease");
-        return t("form.submit");
-      }
-
-      function updateSubmitButtonText() {
-        if (elements.submitProof.disabled) {
-          return;
-        }
-        elements.submitProof.textContent = getSubmitButtonIdleText();
-      }
-
-      function getResultProofTypeLabel(proofType) {
-        if (proofType === "pledge") return t("resultProofTypes.pledge");
-        if (proofType === "unlock") return t("resultProofTypes.unlock");
-        if (proofType === "renewal") return t("resultProofTypes.renewal");
-        if (proofType === "repayment") return t("resultProofTypes.repayment");
-        if (proofType === "timeout-repay") return t("resultProofTypes.timeoutRepay");
-        if (proofType === "execute-increase") return t("resultProofTypes.executeIncrease");
-        if (proofType === "cancel-increase") return t("resultProofTypes.cancelIncrease");
-        if (proofType === "renewal-topup") return t("resultProofTypes.renewalTopup");
-        return proofType;
-      }
-
-      function getTimeoutRepayEnabledLabel(enabled) {
-        return enabled ? t("result.enabledOn") : t("result.enabledOff");
-      }
-
-      function setBusy(isBusy) {
-        elements.submitProof.disabled = isBusy;
-        elements.walletConnectButton.disabled = isBusy;
-        elements.submitProof.textContent = isBusy ? t("form.processing") : getSubmitButtonIdleText();
-      }
-
-      function shortAddress(address) {
-        if (!address) return "-";
-        return `${address.slice(0, 6)}...${address.slice(-4)}`;
-      }
-
-      function escapeHtml(value) {
-        return String(value)
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;")
-          .replaceAll("'", "&#39;");
-      }
-
-      const ERROR_STRING_SELECTOR = "0x08c379a0"; // Error(string) -> require(false, "msg") / revert("msg")
-      const PANIC_SELECTOR = "0x4e487b71";        // Panic(uint256)
-
-      // Revert data can be nested under different keys depending on wallet / provider / ethers
-      // code path. Walk the error object instead of guessing one fixed location.
-      function findRevertData(value, depth = 0) {
-        if (value == null || depth > 8) return null;
-        if (typeof value === "string") {
-          const trimmed = value.trim();
-          if (/^0x[0-9a-fA-F]{8,}$/.test(trimmed)) return trimmed;
-          if (trimmed.startsWith("{")) {
-            try { return findRevertData(JSON.parse(trimmed), depth + 1); } catch { return null; }
-          }
-          return null;
-        }
-        if (typeof value !== "object") return null;
-        for (const key of ["data", "error", "originalError", "cause", "info", "payload", "body", "result", "value", "revert"]) {
-          if (key in value) {
-            const found = findRevertData(value[key], depth + 1);
-            if (found) return found;
-          }
-        }
-        return null;
-      }
-
-      // Decode a contract revert into a readable message:
-      //   custom error -> error name (args appended when present, e.g. "BindingInUse(1, 0x..)")
-      //   require/revert string -> the raw string
-      //   panic -> "Panic(<code>)"
-      // Returns null when there is no decodable revert data (e.g. user-rejected actions).
-      function decodeContractError(error) {
-        // ethers v6 may already have decoded a custom error from the contract interface.
-        if (error && error.revert && error.revert.name) {
-          const args = (error.revert.args ?? []).map((a) => (a != null && a.toString ? a.toString() : String(a)));
-          return args.length ? `${error.revert.name}(${args.join(", ")})` : error.revert.name;
-        }
-        const data = findRevertData(error);
-        if (!data || data.length < 10) return null;
-        const selector = data.slice(0, 10).toLowerCase();
-        if (selector === ERROR_STRING_SELECTOR) {
-          try {
-            const [reason] = ethers.AbiCoder.defaultAbiCoder().decode(["string"], "0x" + data.slice(10));
-            return String(reason);
-          } catch { return null; }
-        }
-        if (selector === PANIC_SELECTOR) {
-          try {
-            const [code] = ethers.AbiCoder.defaultAbiCoder().decode(["uint256"], "0x" + data.slice(10));
-            return `Panic(${code.toString()})`;
-          } catch { return null; }
-        }
-        try {
-          const parsed = ERROR_INTERFACE.parseError(data);
-          if (!parsed) return null;
-          const args = (parsed.args ?? []).map((a) => (a != null && a.toString ? a.toString() : String(a)));
-          return args.length ? `${parsed.name}(${args.join(", ")})` : parsed.name;
-        } catch { return null; }
-      }
-
-      function extractErrorMessage(error, fallback = t("errors.unknown")) {
-        if (!error) {
-          return fallback;
-        }
-
-        // Prefer a decoded contract revert (custom error name / require string) over the generic
-        // provider message, which is otherwise just "execution reverted" or a raw 4-byte selector.
-        const decoded = decodeContractError(error);
-        if (decoded) return decoded;
-
-        const candidates = [
-          error.shortMessage,
-          error.reason,
-          error.message,
-          error.info?.error?.message,
-          error.info?.payload?.error?.message,
-          error.error?.message,
-          error.data?.message,
-          error.cause?.message,
-        ].filter(Boolean);
-
-        for (const candidate of candidates) {
-          if (typeof candidate !== "string") continue;
-          const trimmed = candidate.trim();
-          if (!trimmed) continue;
-
-          if (trimmed.includes("could not coalesce error")) {
-            continue;
-          }
-
-          return trimmed;
-        }
-
-        for (const candidate of candidates) {
-          if (typeof candidate === "string" && candidate.trim()) {
-            return candidate.trim();
-          }
-        }
-
-        return fallback;
-      }
-
-      function getWalletProvider() {
-        return state.walletProvider || window.ethereum || null;
-      }
-
-      function setWalletButton() {
-        const connected = Boolean(state.account);
-        elements.walletConnectButton.classList.toggle("connected", connected);
-        elements.walletConnectButton.textContent = connected
-          ? shortAddress(state.account)
-          : t("wallet.connect");
-      }
-
-      function walletKey(wallet) {
-        return wallet.info?.rdns || wallet.info?.uuid || wallet.info?.name || `wallet-${Math.random()}`;
-      }
-
-      function registerWallet(info, provider) {
-        if (!provider) return;
-        const key = info?.rdns || info?.uuid || info?.name || provider;
-        const exists = state.discoveredWallets.some((item) => item.key === key);
-        if (exists) return;
-        state.discoveredWallets.push({
-          key,
-          info: {
-            name: info?.name || (provider.isMetaMask ? "MetaMask" : t("wallet.injectedWallet")),
-            rdns: info?.rdns || "",
-          },
-          provider,
-        });
-      }
-
-      function setupWalletDiscovery() {
-        window.addEventListener("eip6963:announceProvider", (event) => {
-          registerWallet(event.detail?.info, event.detail?.provider);
-          renderWalletList();
-        });
-
-        if (window.ethereum) {
-          window.dispatchEvent(new Event("eip6963:requestProvider"));
-        }
-      }
-
-      function openWalletModal() {
-        renderWalletList();
-        elements.walletModal.hidden = false;
-      }
-
-      function closeWalletModal() {
-        elements.walletModal.hidden = true;
-      }
-
-      function renderWalletList() {
-        if (state.discoveredWallets.length === 0) {
-          elements.walletList.innerHTML = `
-            <div class="status-box warning">${t("wallet.notDetected")}</div>
-          `;
-          return;
-        }
-
-        elements.walletList.innerHTML = state.discoveredWallets
-          .map(
-            (wallet) => `
-              <button type="button" class="wallet-item" data-wallet-key="${escapeHtml(wallet.key)}">
-                <span class="wallet-item-main">
-                  <span class="wallet-item-name">${escapeHtml(wallet.info.name || t("wallet.defaultName"))}</span>
-                  <span class="wallet-item-sub">${escapeHtml(wallet.info.rdns || t("wallet.injectedWallet"))}</span>
-                </span>
-                <span class="wallet-item-sub">${escapeHtml(t("wallet.connect"))}</span>
-              </button>
-            `
-          )
-          .join("");
-      }
-
-      function updateNetworkInfo() {
-        const network = getSelectedNetwork();
-        elements.networkRpc.textContent = network.rpcUrl;
-        elements.networkChainId.textContent = `${network.chainId} (${network.chainIdHex})`;
-        elements.networkIssuer.textContent = network.issuer;
-        elements.networkExplorer.innerHTML = `<a href="${network.explorer}" target="_blank" rel="noreferrer">${network.explorer}</a>`;
-      }
-
-      function updateProofTypeHint() {
-        const proofType = getSelectedProofType();
-        elements.borrowerBtcRow.hidden = proofType !== "repayment";
-        elements.timeoutRepayRow.hidden = proofType !== "timeout-repay";
-        if (proofType === "pledge" || proofType === "unlock") {
-          elements.btcTxidRow.hidden = false;
-          elements.formFooterNote.innerHTML = t("form.footerMinConfirmations");
-        } else if (proofType === "renewal") {
-          elements.btcTxidRow.hidden = true;
-          elements.formFooterNote.innerHTML = t("form.footerRenewal");
-        } else if (proofType === "repayment") {
-          elements.btcTxidRow.hidden = true;
-          elements.formFooterNote.innerHTML = t("form.footerRepayment");
-        } else if (proofType === "timeout-repay") {
-          elements.btcTxidRow.hidden = true;
-          elements.formFooterNote.innerHTML = t("form.footerTimeoutRepay");
-        } else if (proofType === "execute-increase") {
-          elements.btcTxidRow.hidden = true;
-          elements.formFooterNote.innerHTML = t("form.footerExecuteIncrease");
-        } else if (proofType === "cancel-increase") {
-          elements.btcTxidRow.hidden = true;
-          elements.formFooterNote.innerHTML = t("form.footerCancelIncrease");
-        } else {
-          elements.btcTxidRow.hidden = false;
-          elements.formFooterNote.innerHTML = t("form.footerRenewalTopup");
-        }
-        updateSubmitButtonText();
-      }
-
-      async function connectWallet() {
-        const providerObject = getWalletProvider();
-        if (!providerObject) {
-          throw new Error(t("errors.noWallet"));
-        }
-
-        state.provider = new ethers.BrowserProvider(providerObject);
-        await state.provider.send("eth_requestAccounts", []);
-        state.signer = await state.provider.getSigner();
-        state.account = await state.signer.getAddress();
-        state.chainIdHex = await providerObject.request({ method: "eth_chainId" });
-        const matchedWallet = state.discoveredWallets.find((wallet) => wallet.provider === providerObject);
-        state.walletLabel = matchedWallet?.info?.name || t("wallet.defaultName");
-        setWalletStatus(
-          t("wallet.connected", {
-            wallet: escapeHtml(state.walletLabel),
-            account: escapeHtml(state.account),
-            chainId: escapeHtml(state.chainIdHex),
-          }),
-          "success"
-        );
-        setWalletButton();
-      }
-
-      async function ensureSelectedNetwork() {
-        const network = getSelectedNetwork();
-        const providerObject = getWalletProvider();
-
-        if (!providerObject) {
-          throw new Error(t("errors.noWallet"));
-        }
-
-        let currentChainId = await providerObject.request({ method: "eth_chainId" });
-        if (currentChainId.toLowerCase() === network.chainIdHex.toLowerCase()) {
-          state.chainIdHex = currentChainId;
-          return;
-        }
-
-        try {
-          await providerObject.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: network.chainIdHex }],
-          });
-        } catch (error) {
-          if (error && error.code === 4902) {
-            await providerObject.request({
-              method: "wallet_addEthereumChain",
-              params: [
-                {
-                  chainId: network.chainIdHex,
-                  chainName: network.chainName,
-                  rpcUrls: [network.rpcUrl],
-                  nativeCurrency: network.nativeCurrency,
-                  blockExplorerUrls: [network.explorer],
-                },
-              ],
-            });
-            await providerObject.request({
-              method: "wallet_switchEthereumChain",
-              params: [{ chainId: network.chainIdHex }],
-            });
-          } else {
-            throw error;
-          }
-        }
-
-        state.chainIdHex = await providerObject.request({ method: "eth_chainId" });
-      }
-
-      async function btcRpc(method, params) {
-        const response = await fetch(BTC_APIS.rpc, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            jsonrpc: "1.0",
-            id: Date.now(),
-            method,
-            params,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(t("errors.btcRpcHttp", { status: response.status }));
-        }
-
-        const payload = await response.json();
-        if (payload.error) {
-          throw new Error(payload.error.message || t("errors.btcRpcError"));
-        }
-
-        return payload.result;
-      }
-
-      async function fetchJson(url) {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(t("errors.requestFailed", { url, status: response.status }));
-        }
-        return response.json();
-      }
-
-      async function fetchText(url) {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(t("errors.requestFailed", { url, status: response.status }));
-        }
-        return response.text();
-      }
-
-      async function fetchBtcTransaction(txid) {
-        try {
-          const tx = await btcRpc("getrawtransaction", [txid, true]);
-          return {
-            txid: tx.txid,
-            hex: tx.hex,
-            blockHash: tx.blockhash,
-            blockHeight: tx.blockheight,
-            confirmations: tx.confirmations || 0,
-          };
-        } catch (primaryError) {
-          const txInfo = await fetchJson(`${BTC_APIS.fallback}/tx/${txid}`);
-          const txHex = await fetchText(`${BTC_APIS.fallback}/tx/${txid}/hex`);
-          const blockHeight = txInfo.status?.block_height || null;
-          let confirmations = 0;
-          if (blockHeight) {
-            const bestHeightText = await fetchText(`${BTC_APIS.fallback}/blocks/tip/height`);
-            const bestHeight = Number(bestHeightText);
-            confirmations = bestHeight - blockHeight + 1;
-          }
-          return {
-            txid: txid,
-            hex: txHex.trim(),
-            blockHash: txInfo.status?.block_hash || null,
-            blockHeight,
-            confirmations,
-            primaryError,
-          };
-        }
-      }
-
-      async function fetchBlockData(blockHash) {
-        try {
-          const firstPage = await fetchJson(`${BTC_APIS.explorer}/block/${blockHash}`);
-          const txIds = Array.isArray(firstPage.txs) ? firstPage.txs.map((item) => item.txid) : [];
-
-          for (let page = 2; page <= Number(firstPage.totalPages || 0); page += 1) {
-            const pageData = await fetchJson(`${BTC_APIS.explorer}/block/${blockHash}?page=${page}`);
-            if (Array.isArray(pageData.txs)) {
-              txIds.push(...pageData.txs.map((item) => item.txid));
-            }
-          }
-
-          return {
-            height: Number(firstPage.height),
-            txIds,
-          };
-        } catch (primaryError) {
-          const blockInfo = await fetchJson(`${BTC_APIS.fallback}/block/${blockHash}`);
-          const txIds = await fetchJson(`${BTC_APIS.fallback}/block/${blockHash}/txids`);
-          return {
-            height: Number(blockInfo.height),
-            txIds,
-            primaryError,
-          };
-        }
-      }
-
-      function normalizeTxid(txid) {
-        return txid.trim().replace(/^0x/i, "").toLowerCase();
-      }
-
-      function validateInputs() {
-        const orderAddress = elements.orderAddress.value.trim();
-        const proofType = getSelectedProofType();
-
-        if (!ethers.isAddress(orderAddress)) {
-          throw new Error(t("errors.invalidOrderAddress"));
-        }
-
-        if (proofType === "renewal") {
-          return {
-            orderAddress,
-            btcTxid: null,
-            borrowerBtcAddress: null,
-            timeoutRepayEnabled: null,
-          };
-        }
-
-        if (proofType === "repayment") {
-          const borrowerBtcAddress = elements.borrowerBtcAddress.value.trim();
-          if (!borrowerBtcAddress) {
-            throw new Error(t("errors.invalidBorrowerBtcAddress"));
-          }
-          return {
-            orderAddress,
-            btcTxid: null,
-            borrowerBtcAddress,
-            timeoutRepayEnabled: null,
-          };
-        }
-
-        if (proofType === "timeout-repay") {
-          return {
-            orderAddress,
-            btcTxid: null,
-            borrowerBtcAddress: null,
-            timeoutRepayEnabled: elements.timeoutRepayEnabled.value === "true",
-          };
-        }
-
-        if (proofType === "execute-increase" || proofType === "cancel-increase") {
-          return {
-            orderAddress,
-            btcTxid: null,
-            borrowerBtcAddress: null,
-            timeoutRepayEnabled: null,
-          };
-        }
-
-        const btcTxid = normalizeTxid(elements.btcTxid.value);
-        if (!/^[0-9a-f]{64}$/.test(btcTxid)) {
-          throw new Error(t("errors.invalidBtcTxid"));
-        }
-
-        return {
-          orderAddress,
-          btcTxid,
-          borrowerBtcAddress: null,
-          timeoutRepayEnabled: null,
-        };
-      }
-
-      function buildEmptyRenewalProof() {
-        const rawData = "0x";
-        const blockHeight = 0;
-        const merkleProof = {
-          proof: [],
-          root: ethers.ZeroHash,
-          leaf: ethers.ZeroHash,
-          flags: [],
-        };
-
-        return {
-          txRawData: rawData,
-          blockHeight,
-          confirmations: null,
-          txIndex: null,
-          merkleProof,
-        };
-      }
-
-      function hexToBytes(hex) {
-        const clean = hex.replace(/^0x/i, "").toLowerCase();
-        if (clean.length % 2 !== 0) {
-          throw new Error(t("errors.invalidHexLength", { hex }));
-        }
-
-        const bytes = new Uint8Array(clean.length / 2);
-        for (let i = 0; i < clean.length; i += 2) {
-          bytes[i / 2] = Number.parseInt(clean.slice(i, i + 2), 16);
-        }
-        return bytes;
-      }
-
-      function bytesToHex(bytes) {
-        return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-      }
-
-      function reverseHex(hex) {
-        const bytes = hexToBytes(hex);
-        return bytesToHex(bytes.reverse());
-      }
-
-      async function computeBitcoinParent(leftHex, rightHex) {
-        const combinedHex = `${reverseHex(leftHex)}${reverseHex(rightHex)}`;
-        const firstHash = ethers.sha256(`0x${combinedHex}`);
-        const secondHash = ethers.sha256(firstHash);
-        return reverseHex(secondHash);
-      }
-
-      async function generateMerkleProof(txIds, targetTxid) {
-        const normalizedTxIds = txIds.map(normalizeTxid);
-        const target = normalizeTxid(targetTxid);
-        const txIndex = normalizedTxIds.indexOf(target);
-
-        if (txIndex < 0) {
-          throw new Error(t("errors.txNotInBlock"));
-        }
-
-        let level = normalizedTxIds.slice();
-        let currentIndex = txIndex;
-        const proof = [];
-        const flags = [];
-
-        while (level.length > 1) {
-          const isRightNode = currentIndex % 2 === 1;
-          let siblingIndex;
-
-          if (isRightNode) {
-            siblingIndex = currentIndex - 1;
-          } else if (currentIndex === level.length - 1) {
-            siblingIndex = currentIndex;
-          } else {
-            siblingIndex = currentIndex + 1;
-          }
-
-          proof.push(`0x${level[siblingIndex]}`);
-          flags.push(!isRightNode);
-
-          const nextLevel = [];
-          for (let i = 0; i < level.length; i += 2) {
-            const left = level[i];
-            const right = i + 1 < level.length ? level[i + 1] : level[i];
-            nextLevel.push(await computeBitcoinParent(left, right));
-          }
-
-          level = nextLevel;
-          currentIndex = Math.floor(currentIndex / 2);
-        }
-
-        return {
-          txIndex,
-          proof,
-          flags,
-          root: `0x${level[0]}`,
-          leaf: `0x${target}`,
-        };
-      }
-
-      async function buildProof(txid) {
-        setStatus(t("status.queryingBtc"), "warning");
-        const tx = await fetchBtcTransaction(txid);
-
-        if (!tx.hex) {
-          throw new Error(t("errors.noRawTx"));
-        }
-
-        if (!tx.blockHash) {
-          throw new Error(t("errors.txUnconfirmed"));
-        }
-
-        if ((tx.confirmations || 0) < MIN_CONFIRMATIONS) {
-          throw new Error(
-            t("errors.insufficientConfirmations", {
-              current: tx.confirmations || 0,
-              required: MIN_CONFIRMATIONS,
-            })
-          );
-        }
-
-        setStatus(t("status.generatingProof"), "warning");
-        const blockData = await fetchBlockData(tx.blockHash);
-        const resolvedBlockHeight = Number(tx.blockHeight || blockData.height || 0);
-        if (!resolvedBlockHeight) {
-          throw new Error(t("errors.noBlockHeight"));
-        }
-        const merkle = await generateMerkleProof(blockData.txIds, tx.txid);
-
-        return {
-          txRawData: `0x${tx.hex}`,
-          blockHeight: resolvedBlockHeight,
-          confirmations: Number(tx.confirmations || 0),
-          txIndex: merkle.txIndex,
-          merkleProof: {
-            proof: merkle.proof,
-            root: merkle.root,
-            leaf: merkle.leaf,
-            flags: merkle.flags,
-          },
-        };
-      }
-
-      async function submitProof(event) {
-        event.preventDefault();
-        setBusy(true);
-
-        try {
-          const proofType = getSelectedProofType();
-          const { orderAddress, btcTxid, borrowerBtcAddress, timeoutRepayEnabled } = validateInputs();
-          const network = getSelectedNetwork();
-
-          if (!state.signer) {
-            await connectWallet();
-          }
-
-          setStatus(t("status.switchingNetwork"), "warning");
-          await ensureSelectedNetwork();
-
-          const providerObject = getWalletProvider();
-          state.provider = new ethers.BrowserProvider(providerObject);
-          state.signer = await state.provider.getSigner();
-          state.account = await state.signer.getAddress();
-          state.chainIdHex = await providerObject.request({ method: "eth_chainId" });
-          setWalletStatus(
-            t("wallet.connected", {
-              wallet: escapeHtml(state.walletLabel || t("wallet.defaultName")),
-              account: escapeHtml(state.account),
-              chainId: escapeHtml(state.chainIdHex),
-            }),
-            "success"
-          );
-          setWalletButton();
-
-          if (proofType === "repayment") {
-            setStatus(t("status.submittingRepayment"), "warning");
-            const orderContract = new ethers.Contract(orderAddress, ORDER_ABI, state.signer);
-            const txResponse = await orderContract.confirmRepaymentFromBalance(borrowerBtcAddress);
-
-            setResult(`
-              <div class="result-list">
-                <div class="result-item">
-                  <div class="key">${t("result.borrowerBtc")}</div>
-                  <div class="mono">${escapeHtml(borrowerBtcAddress)}</div>
-                </div>
-              </div>
-            `);
-
-            setStatus(
-              t("status.txSubmitted", { hash: escapeHtml(txResponse.hash) }),
-              "warning"
-            );
-
-            const receipt = await txResponse.wait();
-            if (!receipt || Number(receipt.status) !== 1) {
-              throw new Error(t("errors.txFailed"));
-            }
-
-            setStatus(
-              t("status.txSuccess", { hash: escapeHtml(txResponse.hash) }),
-              "success"
-            );
-
-            setResult(`
-              <div class="result-list">
-                <div class="result-item">
-                  <div class="key">${t("result.status")}</div>
-                  <div>${t("result.submitted")}</div>
-                </div>
-                <div class="result-item">
-                  <div class="key">${t("result.type")}</div>
-                  <div>${getResultProofTypeLabel(proofType)}</div>
-                </div>
-                <div class="result-item">
-                  <div class="key">${t("result.borrowerBtc")}</div>
-                  <div class="mono">${escapeHtml(borrowerBtcAddress)}</div>
-                </div>
-                <div class="result-item">
-                  <div class="key">${t("result.evmTx")}</div>
-                  <div class="mono">${escapeHtml(txResponse.hash)}</div>
-                </div>
-                <div class="result-item">
-                  <div class="key">${t("result.order")}</div>
-                  <div class="mono">${escapeHtml(shortAddress(orderAddress))}</div>
-                </div>
-              </div>
-            `);
-            return;
-          }
-
-          if (proofType === "timeout-repay") {
-            setStatus(t("status.submittingTimeoutRepay"), "warning");
-            const orderContract = new ethers.Contract(orderAddress, ORDER_ABI, state.signer);
-            const txResponse = await orderContract.setTimeoutRepayEnabled(timeoutRepayEnabled);
-
-            setStatus(
-              t("status.txSubmitted", { hash: escapeHtml(txResponse.hash) }),
-              "warning"
-            );
-
-            const receipt = await txResponse.wait();
-            if (!receipt || Number(receipt.status) !== 1) {
-              throw new Error(t("errors.txFailed"));
-            }
-
-            setStatus(
-              t("status.txSuccess", { hash: escapeHtml(txResponse.hash) }),
-              "success"
-            );
-
-            setResult(`
-              <div class="result-list">
-                <div class="result-item">
-                  <div class="key">${t("result.status")}</div>
-                  <div>${t("result.submitted")}</div>
-                </div>
-                <div class="result-item">
-                  <div class="key">${t("result.type")}</div>
-                  <div>${getResultProofTypeLabel(proofType)}</div>
-                </div>
-                <div class="result-item">
-                  <div class="key">${t("result.timeoutRepayEnabled")}</div>
-                  <div>${getTimeoutRepayEnabledLabel(timeoutRepayEnabled)}</div>
-                </div>
-                <div class="result-item">
-                  <div class="key">${t("result.evmTx")}</div>
-                  <div class="mono">${escapeHtml(txResponse.hash)}</div>
-                </div>
-                <div class="result-item">
-                  <div class="key">${t("result.order")}</div>
-                  <div class="mono">${escapeHtml(shortAddress(orderAddress))}</div>
-                </div>
-              </div>
-            `);
-            return;
-          }
-
-          if (proofType === "execute-increase") {
-            setStatus(t("status.submittingExecuteIncrease"), "warning");
-            const orderContract = new ethers.Contract(orderAddress, ORDER_ABI, state.signer);
-            const txResponse = await orderContract.executeIncreaseRequest();
-
-            setStatus(
-              t("status.txSubmitted", { hash: escapeHtml(txResponse.hash) }),
-              "warning"
-            );
-
-            const receipt = await txResponse.wait();
-            if (!receipt || Number(receipt.status) !== 1) {
-              throw new Error(t("errors.txFailed"));
-            }
-
-            setStatus(
-              t("status.txSuccess", { hash: escapeHtml(txResponse.hash) }),
-              "success"
-            );
-
-            setResult(`
-              <div class="result-list">
-                <div class="result-item">
-                  <div class="key">${t("result.status")}</div>
-                  <div>${t("result.submitted")}</div>
-                </div>
-                <div class="result-item">
-                  <div class="key">${t("result.type")}</div>
-                  <div>${getResultProofTypeLabel(proofType)}</div>
-                </div>
-                <div class="result-item">
-                  <div class="key">${t("result.evmTx")}</div>
-                  <div class="mono">${escapeHtml(txResponse.hash)}</div>
-                </div>
-                <div class="result-item">
-                  <div class="key">${t("result.order")}</div>
-                  <div class="mono">${escapeHtml(shortAddress(orderAddress))}</div>
-                </div>
-              </div>
-            `);
-            return;
-          }
-
-          if (proofType === "cancel-increase") {
-            setStatus(t("status.submittingCancelIncrease"), "warning");
-            const issuerContract = new ethers.Contract(network.issuer, ISSUER_ABI, state.signer);
-            const txResponse = await issuerContract.cancelObsidianIncrease(orderAddress);
-
-            setStatus(
-              t("status.txSubmitted", { hash: escapeHtml(txResponse.hash) }),
-              "warning"
-            );
-
-            const receipt = await txResponse.wait();
-            if (!receipt || Number(receipt.status) !== 1) {
-              throw new Error(t("errors.txFailed"));
-            }
-
-            setStatus(
-              t("status.txSuccess", { hash: escapeHtml(txResponse.hash) }),
-              "success"
-            );
-
-            setResult(`
-              <div class="result-list">
-                <div class="result-item">
-                  <div class="key">${t("result.status")}</div>
-                  <div>${t("result.submitted")}</div>
-                </div>
-                <div class="result-item">
-                  <div class="key">${t("result.type")}</div>
-                  <div>${getResultProofTypeLabel(proofType)}</div>
-                </div>
-                <div class="result-item">
-                  <div class="key">${t("result.evmTx")}</div>
-                  <div class="mono">${escapeHtml(txResponse.hash)}</div>
-                </div>
-                <div class="result-item">
-                  <div class="key">${t("result.order")}</div>
-                  <div class="mono">${escapeHtml(shortAddress(orderAddress))}</div>
-                </div>
-              </div>
-            `);
-            return;
-          }
-
-          let proof;
-          if (proofType === "renewal") {
-            setStatus(t("status.renewalDirect"), "warning");
-            proof = buildEmptyRenewalProof();
-          } else {
-            proof = await buildProof(btcTxid);
-          }
-
-          setResult(
-            btcTxid
-              ? `
-            <div class="result-list">
-              <div class="result-item">
-                <div class="key">${t("result.btcTx")}</div>
-                <div class="mono">${escapeHtml(btcTxid)}</div>
-              </div>
-              <div class="result-item">
-                <div class="key">${t("result.blockHeight")}</div>
-                <div>${escapeHtml(proof.blockHeight)}</div>
-              </div>
-              <div class="result-item">
-                <div class="key">${t("result.confirmations")}</div>
-                <div>${escapeHtml(proof.confirmations)}</div>
-              </div>
-              <div class="result-item">
-                <div class="key">${t("result.proof")}</div>
-                <div>${escapeHtml(t("result.proofNodes", { count: proof.merkleProof.proof.length }))}</div>
-              </div>
-            </div>
-          `
-              : `
-            <div class="result-list">
-              <div class="result-item">
-                <div class="key">${t("result.btcTx")}</div>
-                <div>${t("result.notProvided")}</div>
-              </div>
-              <div class="result-item">
-                <div class="key">${t("result.proof")}</div>
-                <div>${t("result.emptyProof")}</div>
-              </div>
-            </div>
-          `
-          );
-
-          let txResponse;
-          if (proofType === "pledge") {
-            setStatus(t("status.submittingPledge"), "warning");
-            const orderContract = new ethers.Contract(orderAddress, ORDER_ABI, state.signer);
-            txResponse = await orderContract.submitToLenderTransferProof(
-              proof.txRawData,
-              proof.blockHeight,
-              proof.merkleProof,
-              0
-            );
-          } else if (proofType === "unlock") {
-            setStatus(t("status.submittingUnlock"), "warning");
-            const issuerContract = new ethers.Contract(network.issuer, ISSUER_ABI, state.signer);
-            txResponse = await issuerContract.submitRegularUnlockTransferProof(
-              orderAddress,
-              proof.txRawData,
-              proof.blockHeight,
-              proof.merkleProof
-            );
-          } else {
-            setStatus(
-              proofType === "renewal" ? t("status.submittingRenewal") : t("status.submittingRenewalTopup"),
-              "warning"
-            );
-            const orderContract = new ethers.Contract(orderAddress, ORDER_ABI, state.signer);
-            txResponse = await orderContract.submitRenewalOrderProof(
-              proof.txRawData,
-              proof.blockHeight,
-              proof.merkleProof
-            );
-          }
-
-          setStatus(
-            t("status.txSubmitted", { hash: escapeHtml(txResponse.hash) }),
-            "warning"
-          );
-
-          const receipt = await txResponse.wait();
-          if (!receipt || Number(receipt.status) !== 1) {
-            throw new Error(t("errors.txFailed"));
-          }
-
-          setStatus(
-            t("status.txSuccess", { hash: escapeHtml(txResponse.hash) }),
-            "success"
-          );
-
-          setResult(`
-            <div class="result-list">
-              <div class="result-item">
-                <div class="key">${t("result.status")}</div>
-                <div>${t("result.submitted")}</div>
-              </div>
-              <div class="result-item">
-                <div class="key">${t("result.type")}</div>
-                <div>${getResultProofTypeLabel(proofType)}</div>
-              </div>
-              <div class="result-item">
-                <div class="key">${t("result.evmTx")}</div>
-                <div class="mono">${escapeHtml(txResponse.hash)}</div>
-              </div>
-              <div class="result-item">
-                <div class="key">${t("result.order")}</div>
-                <div class="mono">${escapeHtml(shortAddress(orderAddress))}</div>
-              </div>
-              <div class="result-item">
-                <div class="key">${t("result.btcHeight")}</div>
-                <div>${escapeHtml(proof.blockHeight)}</div>
-              </div>
-            </div>
-          `);
-        } catch (error) {
-          console.error(error);
-          const message = extractErrorMessage(error);
-          setStatus(t("status.submitFailed", { message: escapeHtml(message) }), "error");
-        } finally {
-          setBusy(false);
-        }
-      }
-
-      function attachWalletListeners() {
-        const providerObject = getWalletProvider();
-        if (!providerObject || typeof providerObject.on !== "function") {
-          return;
-        }
-
-        providerObject.on("accountsChanged", async (accounts) => {
-          if (!accounts || accounts.length === 0) {
-            state.provider = null;
-            state.signer = null;
-            state.account = null;
-            state.chainIdHex = null;
-            setWalletStatus(t("wallet.disconnected"), "warning");
-            setWalletButton();
-            return;
-          }
-
-          state.account = accounts[0];
-          state.chainIdHex = await providerObject.request({ method: "eth_chainId" });
-          setWalletStatus(
-            t("wallet.connected", {
-              wallet: escapeHtml(state.walletLabel || t("wallet.defaultName")),
-              account: escapeHtml(state.account),
-              chainId: escapeHtml(state.chainIdHex),
-            }),
-            "success"
-          );
-          setWalletButton();
-        });
-
-        providerObject.on("chainChanged", async (chainId) => {
-          state.chainIdHex = chainId;
-          if (state.account) {
-            setWalletStatus(
-              t("wallet.connected", {
-                wallet: escapeHtml(state.walletLabel || t("wallet.defaultName")),
-                account: escapeHtml(state.account),
-                chainId: escapeHtml(chainId),
-              }),
-              "success"
-            );
-          }
-        });
-      }
-
-      async function handleWalletSelect(walletKey) {
-        try {
-          setBusy(true);
-          const selectedWallet = state.discoveredWallets.find((wallet) => wallet.key === walletKey);
-          if (selectedWallet) {
-            state.walletProvider = selectedWallet.provider;
-            state.walletLabel = selectedWallet.info?.name || t("wallet.defaultName");
-          }
-          closeWalletModal();
-          setStatus(t("wallet.connecting"), "warning");
-          await connectWallet();
-          attachWalletListeners();
-          setStatus(t("wallet.connectedShort"), "success");
-        } catch (error) {
-          console.error(error);
-          const message = extractErrorMessage(error, t("errors.unknown"));
-          setStatus(t("wallet.connectFailed", { message: escapeHtml(message) }), "error");
-        } finally {
-          setBusy(false);
-        }
-      }
-
-      async function handleConnectClick() {
-        if (state.account) {
-          openWalletModal();
-          return;
-        }
-
-        if (state.discoveredWallets.length === 0 && window.ethereum) {
-          state.walletProvider = window.ethereum;
-          state.walletLabel = window.ethereum.isMetaMask
-            ? "MetaMask"
-            : window.ethereum.isCoinbaseWallet
-              ? "Coinbase Wallet"
-              : t("wallet.injectedWallet");
-          await handleWalletSelect();
-          return;
-        }
-
-        if (state.discoveredWallets.length <= 1) {
-          const singleWallet = state.discoveredWallets[0];
-          await handleWalletSelect(singleWallet?.key);
-          return;
-        }
-
-        openWalletModal();
-      }
-
-      function init() {
-        renderStaticTexts();
-        updateNetworkInfo();
-        updateProofTypeHint();
-        setupWalletDiscovery();
-        setWalletButton();
-        setWalletStatus(t("wallet.notConnected"), "warning");
-        setStatus(t("status.waitingInput"));
-        setResult(t("status.noResult"));
-
-        elements.network.addEventListener("change", () => {
-          updateNetworkInfo();
-          setStatus(t("status.networkSwitched"));
-        });
-
-        elements.proofType.addEventListener("change", updateProofTypeHint);
-        elements.languageToggleButton.addEventListener("click", () => {
-          setLocale(state.locale === "zh" ? "en" : "zh");
-        });
-        elements.walletConnectButton.addEventListener("click", handleConnectClick);
-        elements.walletModalClose.addEventListener("click", closeWalletModal);
-        elements.walletList.addEventListener("click", async (event) => {
-          const button = event.target.closest("[data-wallet-key]");
-          if (!button) return;
-          await handleWalletSelect(button.dataset.walletKey);
-        });
-        elements.walletModal.addEventListener("click", (event) => {
-          if (event.target === elements.walletModal) {
-            closeWalletModal();
-          }
-        });
-        elements.form.addEventListener("submit", submitProof);
-      }
-
-      init();
-    </script>
+    <script type="module" src="js/main.js"></script>
   </body>
 </html>

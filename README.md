@@ -27,6 +27,15 @@
 
 ```text
 proof_submitter/
+├── css/
+│   └── styles.css          # 页面样式
+├── js/
+│   ├── main.js             # 入口，启动应用
+│   ├── app.js              # 业务逻辑（UI、钱包、BTC proof、提交）
+│   ├── config.js           # 网络与 BTC API 配置
+│   ├── abi.js              # 合约 ABI 与错误解码
+│   ├── i18n.js             # 中英文文案
+│   └── state.js            # 运行时状态与 DOM 引用
 ├── contracts/
 │   ├── abi/
 │   │   ├── Issuer.json
@@ -34,17 +43,19 @@ proof_submitter/
 │   └── networks/
 │       ├── pgp.json
 │       └── staging.json
-├── index.html
+├── scripts/                # 开发辅助脚本（可选）
+├── index.html              # 页面结构
 ├── package.json
-├── package-lock.json
 └── README.md
 ```
 
 说明：
 
-- `index.html`：页面主文件
-- `contracts/abi/`：合约 ABI
-- `contracts/networks/`：网络配置和合约地址
+- `index.html`：页面 HTML 结构
+- `css/styles.css`：样式
+- `js/`：前端逻辑，ES Module 组织
+- `contracts/abi/`：完整合约 ABI（供参考）
+- `contracts/networks/`：链上合约地址配置
 
 ## 环境要求
 

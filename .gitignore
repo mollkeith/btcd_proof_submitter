@@ -14,3 +14,7 @@ pnpm-debug.log*
 dist/
 build/
 .cache/
+
+js/_extracted.js
+js/_block_*.js
+_body_fragment.html
